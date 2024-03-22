@@ -7,8 +7,12 @@
   /* semantic color variables for this project */
 
   --color-background: var(--vt-c-black);
-  --color-text: var(--vt-c-white);
-  --section-gap: 160px;
+  --color-text-dark: var(--vt-c-white);
+  --color-text-light: var(--vt-c-black);
+  --main-padding: 1rem;
+  --card-padding: 12px;
+  --header-height: 7vh;
+  --footer-height: 10vh;
 }
 
 *,
@@ -21,12 +25,6 @@
 
 body {
   min-height: 100vh;
-  color: var(--color-text);
-
-  /* resulting css */
-
-  filter: contrast(100%) brightness(100%);
-  background: linear-gradient(192deg, #6a994e, #000);
   transition:
     color 0.5s,
     background-color 0.5s;

@@ -25,3 +25,13 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
+
+.light {
+  color: var(--color-text-light);
+  background: linear-gradient(180deg, #e6f5db, #fff);
+}
+
+.dark {
+  color: var(--color-text-dark);
+  background: linear-gradient(180deg, #1f2b18, #000);
+}

@@ -54,7 +54,6 @@ const MENU_BUTTONS = [
 .nav {
   display: flex;
   padding: 10px 0;
-  filter: invert();
 }
 
 .bottom {

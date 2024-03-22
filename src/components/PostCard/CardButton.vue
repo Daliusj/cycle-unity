@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core';
 import useHoverStore from '@/stores/hoverStore';
-import { RouterLink } from 'vue-router';
 
 const FOCUS_OUT_TIME = 300;
 
 const isDark = useDark();
 const useHover = useHoverStore();
-const { imageUrl, label, route, showTitle } = defineProps<{
+const { imageUrl, label, buttonId } = defineProps<{
   imageUrl: string;
   label: string;
-  route: string;
-  showTitle: boolean;
+  buttonId: string;
 }>();
-const buttonId = `route-button--${label}`;
 
 const handleClick = (id: string): void => {
   setTimeout(() => {
@@ -23,26 +20,26 @@ const handleClick = (id: string): void => {
 </script>
 
 <template>
-  <RouterLink
-    :to="route"
-    class="route-button focusable"
+  <div
+    class="card-button focusable"
     :class="{ focus: useHover.isFocused(buttonId) }"
     @mouseover="useHover.focusIn(buttonId)"
     @focusin="useHover.focusIn(buttonId)"
     @mouseleave="useHover.focusOut(buttonId)"
     @focusout="useHover.focusOut(buttonId)"
     @click="handleClick(buttonId)"
+    @keyup.enter="handleClick(buttonId)"
   >
     <img :src="imageUrl" alt="label" class="icon" :class="{ invert: isDark }" />
-    <div v-show="showTitle" class="label" :class="{ invert: isDark }">
+    <div class="label" :class="{ invert: isDark }">
       {{ label }}
     </div>
-  </RouterLink>
+  </div>
 </template>
 <style scoped>
 .icon {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   margin: 0 auto;
 }
 
@@ -51,14 +48,14 @@ const handleClick = (id: string): void => {
 }
 
 .label {
-  font-size: 16px;
-  margin-top: 5px;
+  font-size: 14px;
 }
 
-.route-button {
+.card-button {
   display: flex;
   text-align: center;
-  flex-grow: 1;
+
+  gap: 5px;
   text-decoration: none;
   color: var(--color-text-light);
 }
