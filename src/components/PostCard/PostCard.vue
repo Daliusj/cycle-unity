@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core';
 import type { Post } from '@/views/HomeView.vue';
-import MapBox from '../MapBox.vue';
-import CardButton from './CardButton.vue';
+import ContentButton from '@/components/ContentButton.vue';
+import MapBox from '../MapBox/MapBox.vue';
 import bikeSVG from './icons/bike.svg';
 import favoriteSVG from './icons/favorite.svg';
 import commentSVG from './icons/comment.svg';
@@ -10,7 +10,7 @@ import publicSVG from './icons/public.svg';
 import privateSVG from './icons/private.svg';
 import moreSVG from './icons/more.svg';
 
-const CARD_BUTTONS_EVENT = [
+const BUTTONS_EVENT = [
   {
     label: 'Going',
     imageUrl: bikeSVG,
@@ -21,7 +21,7 @@ const CARD_BUTTONS_EVENT = [
   },
 ];
 
-const CARD_BUTTONS_ROUTE = [
+const BUTTONS_ROUTE = [
   {
     label: 'Save',
     imageUrl: favoriteSVG,
@@ -38,8 +38,11 @@ const { postData } = defineProps<{
   postData: Post;
 }>();
 
-const buttons =
-  postData.type === 'Event' ? CARD_BUTTONS_EVENT : CARD_BUTTONS_ROUTE;
+const buttons = postData.type === 'Event' ? BUTTONS_EVENT : BUTTONS_ROUTE;
+
+const handleClick = (buttonLabel: string): void => {
+  console.log(`Cliked: ${postData.title}-${buttonLabel} `);
+};
 </script>
 
 <template>
@@ -71,16 +74,21 @@ const buttons =
       {{ `${postData.type}: ${postData.title}` }}
     </div>
     <div class="map">
-      <MapBox :id="postData.id" :coordinates="postData.coordinates" />
+      <MapBox
+        :id="postData.id"
+        :start-coordinates="postData.startCoordinates"
+        :gpxUrl="postData.gpxUrl"
+      />
     </div>
     <div class="details">{{ postData.details }}</div>
     <div class="card-footer">
-      <CardButton
+      <ContentButton
         v-for="(button, index) in buttons"
         :imageUrl="button.imageUrl"
         :label="button.label"
         :buttonId="`card-button-${postData.id}-${index}-${button.label}`"
         :key="`card-buttons-${postData.id}-${index}-${button.label}`"
+        @click="handleClick(button.label)"
       />
     </div>
   </div>

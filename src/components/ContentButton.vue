@@ -7,12 +7,17 @@ const FOCUS_OUT_TIME = 300;
 const isDark = useDark();
 const useHover = useHoverStore();
 const { imageUrl, label, buttonId } = defineProps<{
-  imageUrl: string;
+  imageUrl?: string;
   label: string;
   buttonId: string;
 }>();
 
+const emit = defineEmits({
+  click: (value: boolean) => value,
+});
+
 const handleClick = (id: string): void => {
+  emit('click', true);
   setTimeout(() => {
     useHover.focusOut(id);
   }, FOCUS_OUT_TIME);
@@ -29,8 +34,16 @@ const handleClick = (id: string): void => {
     @focusout="useHover.focusOut(buttonId)"
     @click="handleClick(buttonId)"
     @keyup.enter="handleClick(buttonId)"
+    tabindex="0"
+    role="button"
   >
-    <img :src="imageUrl" alt="label" class="icon" :class="{ invert: isDark }" />
+    <img
+      v-show="imageUrl"
+      :src="imageUrl"
+      alt="label"
+      class="icon"
+      :class="{ invert: isDark }"
+    />
     <div class="label" :class="{ invert: isDark }">
       {{ label }}
     </div>
@@ -38,8 +51,8 @@ const handleClick = (id: string): void => {
 </template>
 <style scoped>
 .icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   margin: 0 auto;
 }
 
@@ -48,13 +61,12 @@ const handleClick = (id: string): void => {
 }
 
 .label {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .card-button {
   display: flex;
   text-align: center;
-
   gap: 5px;
   text-decoration: none;
   color: var(--color-text-light);

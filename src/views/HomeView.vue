@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PostCard from '@/components/PostCard/PostCard.vue';
+import type { LatLngTuple } from 'leaflet';
 
 export type Post = {
   id: string;
@@ -9,7 +10,10 @@ export type Post = {
   availability: string;
   title: string;
   details: string;
-  coordinates: [number, number];
+  date?: string;
+  time?: string;
+  startCoordinates?: LatLngTuple;
+  gpxUrl?: string;
 };
 
 const mockPosts: Post[] = [
@@ -20,8 +24,10 @@ const mockPosts: Post[] = [
     authorAvatar: './src/assets/avatars/cyclist-1.png',
     availability: 'public',
     title: 'Friday coffe ride',
-    details: 'Details',
-    coordinates: [54.8985, 23.9036],
+    details: 'Lets go for friday coffe ride',
+    date: '2024-04-02',
+    time: '17:00',
+    startCoordinates: [54.8985, 23.9036],
   },
   {
     id: '256457',
@@ -31,7 +37,7 @@ const mockPosts: Post[] = [
     availability: 'private',
     title: '100km trail',
     details: 'Details',
-    coordinates: [54.6872, 25.2797],
+    gpxUrl: './src/components/MapBox/track.gpx',
   },
 ];
 </script>

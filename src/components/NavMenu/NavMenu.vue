@@ -10,11 +10,6 @@ const { vertical } = defineProps<{ vertical: boolean }>();
 
 const MENU_BUTTONS = [
   {
-    label: 'Profile',
-    imageUrl: profileUrl,
-    route: '/profile',
-  },
-  {
     label: 'Home',
     imageUrl: homeUrl,
     route: '/',
@@ -33,6 +28,11 @@ const MENU_BUTTONS = [
     label: 'Routes',
     imageUrl: routesUrl,
     route: '/routes',
+  },
+  {
+    label: 'Profile',
+    imageUrl: profileUrl,
+    route: '/profile',
   },
 ];
 </script>

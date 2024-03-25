@@ -3,16 +3,20 @@
   --vt-c-black: black;
   --vt-c-white: white;
   --vt-c-green-dark: #132a13;
+  --vt-c-grey: #8d99ae;
+  --vt-c-dark-red: #9d0208;
+  --vt-c-yellow: #fca311;
+  --vt-c-orange: #bb3e03;
 
   /* semantic color variables for this project */
-
   --color-background: var(--vt-c-black);
   --color-text-dark: var(--vt-c-white);
   --color-text-light: var(--vt-c-black);
   --main-padding: 1rem;
   --card-padding: 12px;
-  --header-height: 7vh;
+  --header-height: 1rem;
   --footer-height: 10vh;
+  --color-placeholder: var(--vt-c-grey);
 }
 
 *,
