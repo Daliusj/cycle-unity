@@ -52,13 +52,13 @@ const handleClick = (buttonLabel: string): void => {
         <img class="avatar" :src="postData.authorAvatar" alt="avatar" />
         <div clas="host">
           <div class="author">{{ postData.author }}</div>
-          <div class="availability">
-            {{ postData.availability === 'public' ? 'Public' : 'Private'
+          <div class="visibility">
+            {{ postData.visibility === 'public' ? 'Public' : 'Private'
             }}<img
-              class="availability-icon"
+              class="visibility-icon"
               :class="{ invert: isDark }"
-              :src="postData.availability === 'public' ? publicSVG : privateSVG"
-              alt="availability"
+              :src="postData.visibility === 'public' ? publicSVG : privateSVG"
+              alt="visibility"
             />
           </div>
         </div>
@@ -123,12 +123,12 @@ const handleClick = (buttonLabel: string): void => {
 .author {
   font-weight: bold;
 }
-.availability {
+.visibility {
   font-size: 12px;
   filter: opacity(0.7);
   display: flex;
 }
-.availability-icon {
+.visibility-icon {
   width: 16px;
   margin-left: 5px;
   filter: opacity(0.7);

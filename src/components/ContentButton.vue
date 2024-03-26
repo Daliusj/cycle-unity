@@ -70,5 +70,6 @@ const handleClick = (id: string): void => {
   gap: 5px;
   text-decoration: none;
   color: var(--color-text-light);
+  cursor: pointer;
 }
 </style>

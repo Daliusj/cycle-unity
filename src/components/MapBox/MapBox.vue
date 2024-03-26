@@ -10,11 +10,18 @@ import startPng from '@/components/MapBox/icons/start.png';
 import finishPng from '@/components/MapBox/icons/finish.png';
 import shadowPng from '@/components/MapBox/icons/shadow.png';
 
-const { id, startCoordinates, gpxUrl } = defineProps<{
+const TILES_FORMAT = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+const { id, startCoordinates, gpxUrl, pickerMode } = defineProps<{
   id: string;
   startCoordinates?: LatLngExpression;
-  gpxUrl?: string;
+  gpxUrl?: string | undefined;
+  pickerMode?: boolean;
 }>();
+
+const emit = defineEmits({
+  setCoords: (value: LatLngExpression) => value,
+});
 
 const distance = ref<number>(0);
 const elevation = ref<number>(0);
@@ -35,9 +42,7 @@ if (startCoordinates) {
 onMounted(() => {
   if (myMap.value === null) {
     const initMap: Map = L.map(mapId, options);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(
-      initMap,
-    );
+    L.tileLayer(TILES_FORMAT).addTo(initMap);
     L.control.fullscreen({}).addTo(initMap);
 
     if (gpxUrl) {
@@ -56,15 +61,27 @@ onMounted(() => {
           elevation.value = Math.round(gpxLayer.get_elevation_gain());
         })
         .addTo(initMap);
+      myMap.value = initMap;
     }
 
     if (startCoordinates) {
-      L.marker(startCoordinates).addTo(initMap);
+      let marker = L.marker(startCoordinates);
+      marker.addTo(initMap);
+
       myMap.value = initMap;
+
+      if (pickerMode) {
+        myMap.value.on('click', event => {
+          initMap.removeLayer(marker);
+          marker = L.marker(event.latlng);
+          marker.addTo(initMap);
+          myMap.value = initMap;
+          emit('setCoords', event.latlng);
+        });
+      }
     }
   }
 });
-
 onUnmounted(() => {
   if (myMap.value) {
     myMap.value.remove();

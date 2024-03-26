@@ -7,7 +7,7 @@ export type Post = {
   type: string;
   author: string;
   authorAvatar: string;
-  availability: string;
+  visibility: string;
   title: string;
   details: string;
   date?: string;
@@ -22,7 +22,7 @@ const mockPosts: Post[] = [
     type: 'Event',
     author: 'John Rider',
     authorAvatar: './src/assets/avatars/cyclist-1.png',
-    availability: 'public',
+    visibility: 'public',
     title: 'Friday coffe ride',
     details: 'Lets go for friday coffe ride',
     date: '2024-04-02',
@@ -34,7 +34,7 @@ const mockPosts: Post[] = [
     type: 'Route',
     author: 'Tommy Biker',
     authorAvatar: './src/assets/avatars/cyclist-3.png',
-    availability: 'private',
+    visibility: 'private',
     title: '100km trail',
     details: 'Details',
     gpxUrl: './src/components/MapBox/track.gpx',

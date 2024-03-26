@@ -10,5 +10,6 @@ import PostForm from '@/components/PostForm/PostForm.vue';
 .form-container {
   min-height: 100%;
   padding: var(--main-padding);
+  width: 100%;
 }
 </style>
