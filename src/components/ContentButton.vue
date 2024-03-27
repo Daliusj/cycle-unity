@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useDark } from '@vueuse/core';
+import { useDark, useFocus } from '@vueuse/core';
 import useHoverStore from '@/stores/hoverStore';
+import { extractIdentifiers } from 'vue/compiler-sfc';
 
 const FOCUS_OUT_TIME = 300;
 
@@ -27,7 +28,9 @@ const handleClick = (id: string): void => {
 <template>
   <div
     class="card-button focusable"
-    :class="{ focus: useHover.isFocused(buttonId) }"
+    :class="{
+      focus: useHover.isFocused(buttonId),
+    }"
     @mouseover="useHover.focusIn(buttonId)"
     @focusin="useHover.focusIn(buttonId)"
     @mouseleave="useHover.focusOut(buttonId)"

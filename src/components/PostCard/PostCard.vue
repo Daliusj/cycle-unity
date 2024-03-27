@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core';
-import type { Post } from '@/views/HomeView.vue';
+import type { Post } from '@/stores/fireStore';
 import ContentButton from '@/components/ContentButton.vue';
 import MapBox from '../MapBox/MapBox.vue';
 import bikeSVG from './icons/bike.svg';
@@ -77,7 +77,7 @@ const handleClick = (buttonLabel: string): void => {
       <MapBox
         :id="postData.id"
         :start-coordinates="postData.startCoordinates"
-        :gpxUrl="postData.gpxUrl"
+        :gpxData="postData.gpxData"
       />
     </div>
     <div class="details">{{ postData.details }}</div>

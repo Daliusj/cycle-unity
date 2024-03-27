@@ -3,7 +3,9 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import Datepicker from '@vuepic/vue-datepicker';
-import type { LatLngTuple, LatLngExpression } from 'leaflet';
+import type { LatLngTuple, LatLngExpression, LatLng } from 'leaflet';
+import useFireStore from '@/stores/fireStore';
+import moment from 'moment';
 import ContentButton from '../ContentButton.vue';
 import closeSvg from './icons/close.svg';
 import MapBox from '../MapBox/MapBox.vue';
@@ -11,8 +13,8 @@ import { MAX_TITLE_LENGTH, ALERT_MESSAGES, TEXTS, LINKS } from './config';
 
 const DEFAULT_COORDS: LatLngTuple = [54.8985, 23.9036];
 
+const useFire = useFireStore();
 const isDark = useDark();
-
 const router = useRouter();
 const selectedTitle = ref('');
 const selectedDetails = ref('');
@@ -94,8 +96,8 @@ onMounted(() => {
   }
 });
 
-const setCoords = (coords: LatLngExpression): void => {
-  selectedCoords.value = coords;
+const setCoords = (coords: LatLng): void => {
+  selectedCoords.value = [coords.lat, coords.lng];
 };
 
 const handleGpxUpload = (event: Event): void => {
@@ -114,14 +116,27 @@ const handleGpxUpload = (event: Event): void => {
   reader.readAsText(file);
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (
     isTitleValid.value &&
     isDateSelected.value &&
     isFileUploaded.value &&
     isLocationPicked.value
-  )
+  ) {
+    await useFire.setPost({
+      id: 'testid923' as string | undefined,
+      type: postType,
+      userId: '7sd6f76sdf76sd',
+      visibility: selectedVisibility.value,
+      title: selectedTitle.value,
+      details: selectedDetails.value,
+      date: moment(selectedDate.value).format('YYYY-MM-DD'),
+      time: moment(selectedDate.value).format('HH:mm'),
+      location: selectedCoords.value as LatLngTuple,
+      gpxData: selectedGpxData.value,
+    });
     router.push(getEscapeLink());
+  }
 };
 </script>
 <template>

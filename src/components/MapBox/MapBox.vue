@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import type { MapOptions, Map, LatLngExpression } from 'leaflet';
+import type { MapOptions, Map, LatLngExpression, LatLng } from 'leaflet';
 import 'leaflet.fullscreen/Control.FullScreen.css';
 import 'leaflet.fullscreen';
 import 'leaflet-gpx';
@@ -12,15 +12,15 @@ import shadowPng from '@/components/MapBox/icons/shadow.png';
 
 const TILES_FORMAT = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-const { id, startCoordinates, gpxUrl, pickerMode } = defineProps<{
+const { id, startCoordinates, gpxData, pickerMode } = defineProps<{
   id: string;
   startCoordinates?: LatLngExpression;
-  gpxUrl?: string | undefined;
+  gpxData?: string | undefined;
   pickerMode?: boolean;
 }>();
 
 const emit = defineEmits({
-  setCoords: (value: LatLngExpression) => value,
+  setCoords: (value: LatLng) => value,
 });
 
 const distance = ref<number>(0);
@@ -45,8 +45,8 @@ onMounted(() => {
     L.tileLayer(TILES_FORMAT).addTo(initMap);
     L.control.fullscreen({}).addTo(initMap);
 
-    if (gpxUrl) {
-      new L.GPX(gpxUrl, {
+    if (gpxData) {
+      new L.GPX(gpxData, {
         async: true,
         marker_options: {
           endIconUrl: finishPng,
@@ -93,8 +93,8 @@ onUnmounted(() => {
   <div>
     <div :id="mapId" class="map-container"></div>
     <div class="stats">
-      <div v-show="gpxUrl">{{ `Distance: ${distance}km` }}</div>
-      <div v-show="gpxUrl">{{ `Elevation gain: ${elevation}m` }}</div>
+      <div v-show="gpxData">{{ `Distance: ${distance}km` }}</div>
+      <div v-show="gpxData">{{ `Elevation gain: ${elevation}m` }}</div>
     </div>
   </div>
 </template>

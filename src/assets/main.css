@@ -8,6 +8,38 @@
   flex-direction: column;
   align-items: center;
   height: 100%;
+
+  & header {
+    width: 100%;
+    padding-top: var(--main-padding);
+    flex-direction: column;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  & footer {
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+    bottom: 0;
+  }
+
+  & main {
+    overflow-y: auto;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--main-padding);
+    width: 100%;
+    top: var(--header-height);
+    bottom: var(--footer-height);
+  }
 }
 
 .alert {
