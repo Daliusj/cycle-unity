@@ -57,7 +57,7 @@ onMounted(() => {
         .on('loaded', event => {
           const gpxLayer = event.target;
           initMap.fitBounds(gpxLayer.getBounds());
-          distance.value = Math.round(gpxLayer.get_distance() / 1000) / 10;
+          distance.value = Math.round(gpxLayer.get_distance() / 1000);
           elevation.value = Math.round(gpxLayer.get_elevation_gain());
         })
         .addTo(initMap);
@@ -101,6 +101,7 @@ onUnmounted(() => {
 <style scoped>
 .map-container {
   height: 400px;
+  z-index: 0;
 }
 .stats {
   display: flex;

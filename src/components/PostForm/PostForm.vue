@@ -1,26 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import Datepicker from '@vuepic/vue-datepicker';
-import type { LatLngTuple, LatLngExpression, LatLng } from 'leaflet';
+import type { LatLngTuple, LatLng } from 'leaflet';
 import useFireStore from '@/stores/fireStore';
 import moment from 'moment';
 import ContentButton from '../ContentButton.vue';
 import closeSvg from './icons/close.svg';
 import MapBox from '../MapBox/MapBox.vue';
 import { MAX_TITLE_LENGTH, ALERT_MESSAGES, TEXTS, LINKS } from './config';
+import useUserStore from '../../stores/userStore';
 
 const DEFAULT_COORDS: LatLngTuple = [54.8985, 23.9036];
 
+const useUser = useUserStore();
 const useFire = useFireStore();
 const isDark = useDark();
 const router = useRouter();
 const selectedTitle = ref('');
 const selectedDetails = ref('');
 const selectedDate = ref('');
-const selectedVisibility = ref('Public');
-const selectedCoords = ref<LatLngExpression | null>(null);
+const selectedVisibility = ref('public');
+const selectedCoords = ref<LatLngTuple>(DEFAULT_COORDS);
 const selectedGpxData = ref<string | undefined>(undefined);
 const fileName = ref<string>('');
 const { mode, postType } = defineProps<{
@@ -66,10 +68,10 @@ const getVisibilityButtonClass = (value: string, showDark: boolean) => {
 };
 
 const publicButtonClass = computed(() =>
-  getVisibilityButtonClass('Public', isDark.value),
+  getVisibilityButtonClass('public', isDark.value),
 );
 const privateButtonClass = computed(() =>
-  getVisibilityButtonClass('Private', isDark.value),
+  getVisibilityButtonClass('private', isDark.value),
 );
 
 const isKeyOfObject = (key: string, object: {}): key is keyof typeof object =>
@@ -89,10 +91,16 @@ const getEscapeLink = () => {
   return '/';
 };
 
-onMounted(() => {
+onBeforeMount(() => {
+  console.log(mode);
   if (mode === 'edit') {
-    selectedTitle.value = '';
-    selectedDetails.value = '';
+    selectedTitle.value = useFire.postToEdit.title;
+    selectedDetails.value = useFire.postToEdit.details;
+    selectedDate.value = useFire.postToEdit.date || '';
+    selectedVisibility.value = useFire.postToEdit.visibility.toLowerCase();
+    selectedCoords.value =
+      useFire.postToEdit.startCoordinates || DEFAULT_COORDS;
+    selectedGpxData.value = useFire.postToEdit.gpxData;
   }
 });
 
@@ -124,9 +132,9 @@ const handleSubmit = async () => {
     isLocationPicked.value
   ) {
     await useFire.setPost({
-      id: 'testid923' as string | undefined,
+      id: useFire.postToEdit.id || '',
       type: postType,
-      userId: '7sd6f76sdf76sd',
+      userId: useUser.userId,
       visibility: selectedVisibility.value,
       title: selectedTitle.value,
       details: selectedDetails.value,
@@ -134,6 +142,7 @@ const handleSubmit = async () => {
       time: moment(selectedDate.value).format('HH:mm'),
       location: selectedCoords.value as LatLngTuple,
       gpxData: selectedGpxData.value,
+      gpxId: useFire.postToEdit.gpxId || '',
     });
     router.push(getEscapeLink());
   }
@@ -197,7 +206,7 @@ const handleSubmit = async () => {
       <input
         type="radio"
         id="public"
-        value="Public"
+        value="public"
         v-model="selectedVisibility"
         class="hidden-radio"
       />
@@ -212,7 +221,7 @@ const handleSubmit = async () => {
       <input
         type="radio"
         id="private"
-        value="Private"
+        value="private"
         v-model="selectedVisibility"
         class="hidden-radio"
       />
@@ -249,7 +258,7 @@ const handleSubmit = async () => {
     <div v-show="postType === 'event'" class="map" id="map">
       <MapBox
         :id="`mapbox-${postType}-${mode}`"
-        :start-coordinates="DEFAULT_COORDS"
+        :start-coordinates="selectedCoords"
         :pickerMode="true"
         @set-coords="setCoords"
       />

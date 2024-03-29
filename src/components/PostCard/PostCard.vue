@@ -8,7 +8,7 @@ import favoriteSVG from './icons/favorite.svg';
 import commentSVG from './icons/comment.svg';
 import publicSVG from './icons/public.svg';
 import privateSVG from './icons/private.svg';
-import moreSVG from './icons/more.svg';
+import PopUpMenu from './PopUpMenu.vue';
 
 const BUTTONS_EVENT = [
   {
@@ -63,12 +63,7 @@ const handleClick = (buttonLabel: string): void => {
           </div>
         </div>
       </div>
-      <img
-        class="more-icon"
-        :class="{ invert: isDark }"
-        :src="moreSVG"
-        alt="more"
-      />
+      <PopUpMenu :id="postData.id" :postType="postData.type" />
     </div>
     <div class="title">
       {{ `${postData.type}: ${postData.title}` }}
@@ -134,16 +129,13 @@ const handleClick = (buttonLabel: string): void => {
   filter: opacity(0.7);
 }
 
-.more-icon {
-  width: 24px;
-}
-
 .title {
   font-size: 20px;
 }
 
 .map {
   width: 100%;
+  z-index: 0;
 }
 .details {
   width: 100%;

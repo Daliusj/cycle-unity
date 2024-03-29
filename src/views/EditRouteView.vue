@@ -3,12 +3,13 @@ import PostForm from '@/components/PostForm/PostForm.vue';
 </script>
 <template>
   <div class="form-container">
-    <PostForm :postType="'route'" :mode="'new'" />
+    <PostForm :postType="'route'" :mode="'edit'" />
   </div>
 </template>
 <style scoped>
 .form-container {
   min-height: 100%;
   padding: var(--main-padding);
+  width: 100%;
 }
 </style>
