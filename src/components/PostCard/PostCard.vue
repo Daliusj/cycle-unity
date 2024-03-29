@@ -2,6 +2,7 @@
 import { useDark } from '@vueuse/core';
 import type { Post } from '@/stores/fireStore';
 import ContentButton from '@/components/ContentButton.vue';
+import useFireStore from '@/stores/fireStore';
 import MapBox from '../MapBox/MapBox.vue';
 import bikeSVG from './icons/bike.svg';
 import favoriteSVG from './icons/favorite.svg';
@@ -10,39 +11,19 @@ import publicSVG from './icons/public.svg';
 import privateSVG from './icons/private.svg';
 import PopUpMenu from './PopUpMenu.vue';
 
-const BUTTONS_EVENT = [
-  {
-    label: 'Going',
-    imageUrl: bikeSVG,
-  },
-  {
-    label: 'Comment',
-    imageUrl: commentSVG,
-  },
-];
-
-const BUTTONS_ROUTE = [
-  {
-    label: 'Save',
-    imageUrl: favoriteSVG,
-  },
-  {
-    label: 'Comment',
-    imageUrl: commentSVG,
-  },
-];
-
 const isDark = useDark();
-
+const useFire = useFireStore();
 const { postData } = defineProps<{
   postData: Post;
 }>();
 
-const buttons = postData.type === 'Event' ? BUTTONS_EVENT : BUTTONS_ROUTE;
-
-const handleClick = (buttonLabel: string): void => {
-  console.log(`Cliked: ${postData.title}-${buttonLabel} `);
+const handleGoingClick = () => {
+  useFire.setEventToGoing(postData.id);
 };
+const handleSaveClick = () => {
+  useFire.setRouteToSaved(postData.id);
+};
+const handleCommentClick = () => {};
 </script>
 
 <template>
@@ -63,10 +44,20 @@ const handleClick = (buttonLabel: string): void => {
           </div>
         </div>
       </div>
-      <PopUpMenu :id="postData.id" :postType="postData.type" />
+      <PopUpMenu
+        :id="postData.id"
+        :postType="postData.type"
+        :author-id="postData.authorId"
+        :gpx-id="postData.gpxId"
+        :gpx-data="postData.gpxData"
+        :gpx-file-name="postData.gpxFileName"
+      />
     </div>
     <div class="title">
       {{ `${postData.type}: ${postData.title}` }}
+    </div>
+    <div class="date" v-show="postData.type === 'Event'">
+      {{ `${postData.date} ${postData.time}` }}
     </div>
     <div class="map">
       <MapBox
@@ -78,12 +69,27 @@ const handleClick = (buttonLabel: string): void => {
     <div class="details">{{ postData.details }}</div>
     <div class="card-footer">
       <ContentButton
-        v-for="(button, index) in buttons"
-        :imageUrl="button.imageUrl"
-        :label="button.label"
-        :buttonId="`card-button-${postData.id}-${index}-${button.label}`"
-        :key="`card-buttons-${postData.id}-${index}-${button.label}`"
-        @click="handleClick(button.label)"
+        :imageUrl="bikeSVG"
+        label="Going"
+        :buttonId="`card-button-${postData.id}-going`"
+        :key="`card-button-${postData.id}-going`"
+        @click="handleGoingClick"
+        v-show="postData.type === 'Event'"
+      />
+      <ContentButton
+        :imageUrl="favoriteSVG"
+        label="Save"
+        :buttonId="`card-button-${postData.id}-save`"
+        :key="`card-button-${postData.id}-save`"
+        @click="handleSaveClick"
+        v-show="postData.type === 'Route'"
+      />
+      <ContentButton
+        :imageUrl="commentSVG"
+        label="Comment"
+        :buttonId="`card-button-${postData.id}-comment`"
+        :key="`card-button-${postData.id}-comment`"
+        @click="handleCommentClick"
       />
     </div>
   </div>

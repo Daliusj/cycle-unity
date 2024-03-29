@@ -13,9 +13,6 @@ const RADIO_OPTIONS = [
 
 const useFire = useFireStore();
 const router = useRouter();
-const handleOptionSelect = (option: string): void => {
-  console.log('Routes filter', option);
-};
 
 const handleAddClick = (): void => {
   router.push('/new-route');
@@ -27,10 +24,10 @@ const handleAddClick = (): void => {
       :buttonLabel="BUTTON_LABEL"
       :radioOptions="RADIO_OPTIONS"
       @addClick="handleAddClick"
-      @optionSelect="handleOptionSelect"
+      @optionSelect="useFire.getFilteredRoutes"
     />
     <PostCard
-      v-for="(post, index) in useFire.routes"
+      v-for="(post, index) in useFire.routesFiltered"
       :postData="post"
       :key="`post-${index}`"
     />

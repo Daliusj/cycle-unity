@@ -6,6 +6,7 @@ import useFireStore from '@/stores/fireStore';
 const useFire = useFireStore();
 useFire.fetchEvents();
 useFire.fetchRoutes();
+useFire.fetchUserContent();
 </script>
 
 <template>

@@ -1,17 +1,28 @@
 import { defineStore } from 'pinia';
-import { collection, getDocs, query, doc, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDoc,
+} from 'firebase/firestore';
 import firestoreDb from '@/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import type { LatLngTuple } from 'leaflet';
+import useUserStore from './userStore';
 
 const EVENTS_COLLECTION_ID = 'events';
 const ROUTES_COLLECTION_ID = 'routes';
 const USERS_COLLECTION_ID = 'users';
 const GPX_COLLECTION_ID = 'gpx';
+const USERS_CONTENT_COLLECTION_ID = 'usersContent';
 
 export type Post = {
   id: string;
   type: string;
+  authorId: string;
   author: string;
   authorAvatar: string;
   visibility: string;
@@ -22,6 +33,7 @@ export type Post = {
   startCoordinates?: LatLngTuple;
   gpxData: string | undefined;
   gpxId: string | undefined;
+  gpxFileName: string | undefined;
 };
 
 type FireStoreEvent = {
@@ -34,6 +46,7 @@ type FireStoreEvent = {
   title: string;
   visibility: string;
   gpxId: string;
+  gpxFileName: string;
 };
 type FireStoreRoute = {
   id: string;
@@ -42,6 +55,7 @@ type FireStoreRoute = {
   title: string;
   visibility: string;
   gpxId: string;
+  gpxFileName: string;
 };
 
 type FireStoreUser = {
@@ -54,12 +68,24 @@ type FireStoreUser = {
 type FireStoreGpx = {
   id: string;
   data: string;
+  gpxFileName: string;
+};
+
+type FireStoreUserContent = {
+  hiddenPosts: [];
+  savedRoutes: [];
+  eventsGoing: [];
 };
 
 type FireStoreState = {
   events: Post[];
   routes: Post[];
+  eventsFiltered: Post[];
+  routesFiltered: Post[];
   postToEdit: Post;
+  userHiddenPosts: string[];
+  userSavedRoutes: string[];
+  userEventsGoing: string[];
 };
 
 type PostData = {
@@ -74,12 +100,14 @@ type PostData = {
   location: LatLngTuple;
   gpxData: string | undefined;
   gpxId: string | undefined;
+  gpxFileName: string | undefined;
 };
 
 const postFactory = (): Post => {
   return {
     id: '',
     type: '',
+    authorId: '',
     author: '',
     authorAvatar: '',
     visibility: '',
@@ -87,6 +115,7 @@ const postFactory = (): Post => {
     details: '',
     gpxData: undefined,
     gpxId: undefined,
+    gpxFileName: undefined,
   };
 };
 
@@ -99,17 +128,40 @@ const fetchCollection = async (collectionId: string) => {
     id: document.id,
   }));
 };
-
 const docRef = (id: string | undefined, postType: string) =>
   id ? doc(firestoreDb, postType, id) : doc(collection(firestoreDb, postType));
+
+const fetchDocument = async (id: string | undefined, postType: string) => {
+  const docSnap = await getDoc(docRef(id, postType));
+  if (docSnap.exists()) {
+    return docSnap.data();
+  }
+  console.log('No such document!');
+  return undefined;
+};
+
+const setUserContent = async (
+  id: string | undefined,
+  hiddenPosts: string[],
+  savedRoutes: string[],
+  eventsGoing: string[],
+) => {
+  await setDoc(docRef(id, USERS_CONTENT_COLLECTION_ID), {
+    hiddenPosts,
+    savedRoutes,
+    eventsGoing,
+  });
+};
 
 const setGpx = async (
   gpxData: PostData['gpxData'],
   gpxId: PostData['gpxId'],
+  gpxFileName: PostData['gpxFileName'],
 ) => {
   try {
     await setDoc(docRef(gpxId, GPX_COLLECTION_ID), {
       data: gpxData,
+      gpxFileName,
     });
   } catch (error) {
     console.error('Error setting document: ', error);
@@ -120,7 +172,12 @@ const useFireStore = defineStore('fireStore', {
   state: (): FireStoreState => ({
     events: [],
     routes: [],
+    eventsFiltered: [],
+    routesFiltered: [],
     postToEdit: postFactory(),
+    userHiddenPosts: [],
+    userSavedRoutes: [],
+    userEventsGoing: [],
   }),
   actions: {
     async fetchEvents() {
@@ -139,10 +196,14 @@ const useFireStore = defineStore('fireStore', {
           const gpxData = event.gpxId
             ? gpxTracks.find(track => track.id === event.gpxId)?.data
             : null;
+          const gpxFileName = event.gpxId
+            ? gpxTracks.find(track => track.id === event.gpxId)?.gpxFileName
+            : null;
           if (authorData)
             return {
               id: event.id,
               type: 'Event',
+              authorId: event.authorId,
               author: `${authorData.name} ${authorData.lastName}`,
               authorAvatar: `./src/assets/avatars/${authorData.avatar}.png`,
               visibility: event.visibility,
@@ -153,42 +214,80 @@ const useFireStore = defineStore('fireStore', {
               startCoordinates: event.location,
               gpxData: gpxData || undefined,
               gpxId: event.gpxId || undefined,
+              gpxFileName: gpxFileName || undefined,
             } as Post;
           return null;
         })
-        .filter((post): post is Post => post !== null);
+        .filter((post): post is Post => post !== null)
+        .filter(
+          (post): post is Post =>
+            !this.userHiddenPosts.some(
+              (hiddenPostId: string) => hiddenPostId === post.id,
+            ),
+        );
+      this.getFilteredEvents('all');
     },
     async fetchRoutes() {
-      const routes = (await fetchCollection(
-        ROUTES_COLLECTION_ID,
-      )) as FireStoreRoute[];
-      const users = (await fetchCollection(
-        USERS_COLLECTION_ID,
-      )) as FireStoreUser[];
-      const gpxTracks = (await fetchCollection(
-        GPX_COLLECTION_ID,
-      )) as FireStoreGpx[];
-      this.routes = routes
-        .map(route => {
-          const authorData = users.find(user => user.id === route.authorId);
-          const gpxData = gpxTracks.find(
-            track => track.id === route.gpxId,
-          )?.data;
-          if (authorData)
-            return {
-              id: route.id,
-              type: 'Route',
-              author: `${authorData.name} ${authorData.lastName}`,
-              authorAvatar: `./src/assets/avatars/${authorData.avatar}.png`,
-              visibility: route.visibility,
-              title: route.title,
-              details: route.details,
-              gpxId: route.gpxId,
-              gpxData,
-            } as Post;
-          return null;
-        })
-        .filter((post): post is Post => post !== null);
+      try {
+        const routes = (await fetchCollection(
+          ROUTES_COLLECTION_ID,
+        )) as FireStoreRoute[];
+        const users = (await fetchCollection(
+          USERS_COLLECTION_ID,
+        )) as FireStoreUser[];
+        const gpxTracks = (await fetchCollection(
+          GPX_COLLECTION_ID,
+        )) as FireStoreGpx[];
+        this.routes = routes
+          .map(route => {
+            const authorData = users.find(user => user.id === route.authorId);
+            const gpxData = gpxTracks.find(
+              track => track.id === route.gpxId,
+            )?.data;
+            const gpxFileName = gpxTracks.find(
+              track => track.id === route.gpxId,
+            )?.gpxFileName;
+            if (authorData)
+              return {
+                id: route.id,
+                type: 'Route',
+                authorId: route.authorId,
+                author: `${authorData.name} ${authorData.lastName}`,
+                authorAvatar: `./src/assets/avatars/${authorData.avatar}.png`,
+                visibility: route.visibility,
+                title: route.title,
+                details: route.details,
+                gpxId: route.gpxId,
+                gpxData,
+                gpxFileName: gpxFileName || undefined,
+              } as Post;
+            return null;
+          })
+          .filter((post): post is Post => post !== null)
+          .filter(
+            (post): post is Post =>
+              !this.userHiddenPosts.some(
+                (hiddenPostId: string) => hiddenPostId === post.id,
+              ),
+          );
+      } catch (error) {
+        console.error('Error fetching document: ', error);
+      }
+      this.getFilteredRoutes('all');
+    },
+    async fetchUserContent() {
+      const useUser = useUserStore();
+      try {
+        const fetchedUserContent = (await fetchDocument(
+          useUser.userId,
+          USERS_CONTENT_COLLECTION_ID,
+        )) as FireStoreUserContent;
+        this.userHiddenPosts = fetchedUserContent.hiddenPosts;
+        this.userSavedRoutes = fetchedUserContent.savedRoutes;
+        this.userEventsGoing = fetchedUserContent.eventsGoing;
+      } catch (error) {
+        console.error('Error fetching document: ', error);
+      }
     },
     async setPost(postData: PostData) {
       const trackGpxId = postData.gpxData ? postData.gpxId || uuidv4() : '';
@@ -213,11 +312,12 @@ const useFireStore = defineStore('fireStore', {
             visibility: postData.visibility,
           });
         if (postData.gpxData) {
-          await setGpx(postData.gpxData, trackGpxId);
+          await setGpx(postData.gpxData, trackGpxId, postData.gpxFileName);
         }
       } catch (error) {
         console.error('Error setting document: ', error);
       }
+      this.cleanPostToEdit();
       await this.fetchEvents();
       await this.fetchRoutes();
     },
@@ -226,6 +326,99 @@ const useFireStore = defineStore('fireStore', {
         post => post.id === postToEditId,
       );
       if (postToEdit) this.postToEdit = postToEdit;
+    },
+    cleanPostToEdit() {
+      this.postToEdit = postFactory();
+    },
+
+    async deletePost(
+      postId: string,
+      postType: string,
+      gpxId: string | undefined,
+    ) {
+      try {
+        await deleteDoc(
+          docRef(
+            postId,
+            postType === 'Event' ? EVENTS_COLLECTION_ID : ROUTES_COLLECTION_ID,
+          ),
+        );
+        if (gpxId) await deleteDoc(docRef(gpxId, GPX_COLLECTION_ID));
+      } catch (error) {
+        console.error('Error delete document: ', error);
+      }
+      await this.fetchEvents();
+      await this.fetchRoutes();
+    },
+    async setPostToHidden(postId: string) {
+      const useUser = useUserStore();
+      this.userHiddenPosts = [...new Set([...this.userHiddenPosts, postId])];
+      try {
+        await setUserContent(
+          useUser.userId,
+          this.userHiddenPosts,
+          this.userSavedRoutes,
+          this.userEventsGoing,
+        );
+      } catch (error) {
+        console.error('Error set document: ', error);
+      }
+      await this.fetchEvents();
+      await this.fetchRoutes();
+    },
+    async setRouteToSaved(postId: string) {
+      const useUser = useUserStore();
+      this.userSavedRoutes = [...new Set([...this.userSavedRoutes, postId])];
+      try {
+        await setUserContent(
+          useUser.userId,
+          this.userHiddenPosts,
+          this.userSavedRoutes,
+          this.userEventsGoing,
+        );
+      } catch (error) {
+        console.error('Error set document: ', error);
+      }
+      this.fetchUserContent();
+    },
+    async setEventToGoing(postId: string) {
+      const useUser = useUserStore();
+      this.userEventsGoing = [...new Set([...this.userEventsGoing, postId])];
+      try {
+        await setUserContent(
+          useUser.userId,
+          this.userHiddenPosts,
+          this.userSavedRoutes,
+          this.userEventsGoing,
+        );
+      } catch (error) {
+        console.error('Error set document: ', error);
+      }
+      this.fetchUserContent();
+    },
+    getFilteredEvents(option: string) {
+      const useUser = useUserStore();
+      if (option === 'all') this.eventsFiltered = this.events;
+      if (option === 'going')
+        this.eventsFiltered = this.events.filter(event =>
+          this.userEventsGoing.includes(event.id),
+        );
+      if (option === 'hosted')
+        this.eventsFiltered = this.events.filter(
+          event => event.authorId === useUser.userId,
+        );
+    },
+    getFilteredRoutes(option: string) {
+      const useUser = useUserStore();
+      if (option === 'all') this.routesFiltered = this.routes;
+      if (option === 'favorites')
+        this.routesFiltered = this.routes.filter(route =>
+          this.userSavedRoutes.includes(route.id),
+        );
+      if (option === 'created')
+        this.routesFiltered = this.routes.filter(
+          route => route.authorId === useUser.userId,
+        );
     },
   },
 });

@@ -13,9 +13,6 @@ const RADIO_OPTIONS = [
 
 const useFire = useFireStore();
 const router = useRouter();
-const handleOptionSelect = (option: string): void => {
-  console.log('Event filter', option);
-};
 
 const handleAddClick = (): void => {
   router.push('/new-event');
@@ -27,10 +24,10 @@ const handleAddClick = (): void => {
       :buttonLabel="BUTTON_LABEL"
       :radioOptions="RADIO_OPTIONS"
       @addClick="handleAddClick"
-      @optionSelect="handleOptionSelect"
+      @optionSelect="useFire.getFilteredEvents"
     />
     <PostCard
-      v-for="(post, index) in useFire.events"
+      v-for="(post, index) in useFire.eventsFiltered"
       :postData="post"
       :key="`post-${index}`"
     />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, onBeforeMount } from 'vue';
+import { ref, watch, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import Datepicker from '@vuepic/vue-datepicker';
@@ -23,7 +23,7 @@ const selectedDetails = ref('');
 const selectedDate = ref('');
 const selectedVisibility = ref('public');
 const selectedCoords = ref<LatLngTuple>(DEFAULT_COORDS);
-const selectedGpxData = ref<string | undefined>(undefined);
+const selectedGpxData = ref<string | undefined>();
 const fileName = ref<string>('');
 const { mode, postType } = defineProps<{
   mode: string;
@@ -92,15 +92,15 @@ const getEscapeLink = () => {
 };
 
 onBeforeMount(() => {
-  console.log(mode);
   if (mode === 'edit') {
     selectedTitle.value = useFire.postToEdit.title;
     selectedDetails.value = useFire.postToEdit.details;
-    selectedDate.value = useFire.postToEdit.date || '';
+    selectedDate.value = `${useFire.postToEdit.date}T${useFire.postToEdit.time}`;
     selectedVisibility.value = useFire.postToEdit.visibility.toLowerCase();
     selectedCoords.value =
       useFire.postToEdit.startCoordinates || DEFAULT_COORDS;
     selectedGpxData.value = useFire.postToEdit.gpxData;
+    fileName.value = useFire.postToEdit.gpxFileName || 'route.gpx';
   }
 });
 
@@ -138,11 +138,16 @@ const handleSubmit = async () => {
       visibility: selectedVisibility.value,
       title: selectedTitle.value,
       details: selectedDetails.value,
-      date: moment(selectedDate.value).format('YYYY-MM-DD'),
-      time: moment(selectedDate.value).format('HH:mm'),
+      date:
+        postType === 'event'
+          ? moment(selectedDate.value).format('YYYY-MM-DD')
+          : '',
+      time:
+        postType === 'event' ? moment(selectedDate.value).format('HH:mm') : '',
       location: selectedCoords.value as LatLngTuple,
       gpxData: selectedGpxData.value,
-      gpxId: useFire.postToEdit.gpxId || '',
+      gpxId: useFire.postToEdit.gpxId,
+      gpxFileName: fileName.value,
     });
     router.push(getEscapeLink());
   }
