@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useDark, useFocus } from '@vueuse/core';
+import { useDark } from '@vueuse/core';
 import useHoverStore from '@/stores/hoverStore';
-import { extractIdentifiers } from 'vue/compiler-sfc';
 
 const FOCUS_OUT_TIME = 300;
 

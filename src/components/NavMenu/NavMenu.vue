@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router';
 import profileUrl from '@/components/NavMenu/icons/profile.svg';
 import eventsUrl from '@/components/NavMenu/icons/events.svg';
 import homeUrl from '@/components/NavMenu/icons/home.svg';
@@ -7,6 +8,7 @@ import clubUrl from '@/components/NavMenu/icons/club.svg';
 import RouteButton from '@/components/NavMenu/RouteButton.vue';
 
 const { vertical } = defineProps<{ vertical: boolean }>();
+const route = useRoute();
 
 const MENU_BUTTONS = [
   {
@@ -17,7 +19,7 @@ const MENU_BUTTONS = [
   {
     label: 'Events',
     imageUrl: eventsUrl,
-    route: '/events',
+    route: '/events/all',
   },
   {
     label: 'Clubs',
@@ -27,7 +29,7 @@ const MENU_BUTTONS = [
   {
     label: 'Routes',
     imageUrl: routesUrl,
-    route: '/routes',
+    route: '/routes/all',
   },
   {
     label: 'Profile',
@@ -35,6 +37,16 @@ const MENU_BUTTONS = [
     route: '/profile',
   },
 ];
+
+const handleRouting = (buttonRoute: string) => {
+  if (buttonRoute.startsWith('/events') && route.path.startsWith('/events')) {
+    return route.path;
+  }
+  if (buttonRoute.startsWith('/routes') && route.path.startsWith('/routes')) {
+    return route.path;
+  }
+  return buttonRoute;
+};
 </script>
 
 <template>
@@ -44,7 +56,7 @@ const MENU_BUTTONS = [
       :key="`menu-bar-${index}-${button.label}`"
       :imageUrl="button.imageUrl"
       :label="button.label"
-      :route="button.route"
+      :route="handleRouting(button.route)"
       :showTitle="vertical"
     />
   </div>

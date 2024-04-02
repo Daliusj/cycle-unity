@@ -9,6 +9,7 @@ import 'leaflet-gpx';
 import startPng from '@/components/MapBox/icons/start.png';
 import finishPng from '@/components/MapBox/icons/finish.png';
 import shadowPng from '@/components/MapBox/icons/shadow.png';
+import { v4 as uuidv4 } from 'uuid';
 
 const TILES_FORMAT = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
@@ -26,9 +27,10 @@ const emit = defineEmits({
 const distance = ref<number>(0);
 const elevation = ref<number>(0);
 
-const mapId = `map-${id}`;
+const mapId = `map-${id}-${uuidv4()}`;
 const myMap = ref<Map | null>(null);
-
+const markers = ref<L.Marker[]>([]);
+const gpxLayers = ref<L.Layer[]>([]);
 const options: MapOptions = {
   zoom: 12,
   touchZoom: true,
@@ -41,49 +43,63 @@ if (startCoordinates) {
 
 onMounted(() => {
   if (myMap.value === null) {
-    const initMap: Map = L.map(mapId, options);
-    L.tileLayer(TILES_FORMAT).addTo(initMap);
-    L.control.fullscreen({}).addTo(initMap);
-
-    if (gpxData) {
-      new L.GPX(gpxData, {
-        async: true,
-        marker_options: {
-          endIconUrl: finishPng,
-          startIconUrl: startPng,
-          shadowUrl: shadowPng,
-        },
-      })
-        .on('loaded', event => {
-          const gpxLayer = event.target;
-          initMap.fitBounds(gpxLayer.getBounds());
-          distance.value = Math.round(gpxLayer.get_distance() / 1000);
-          elevation.value = Math.round(gpxLayer.get_elevation_gain());
-        })
-        .addTo(initMap);
-      myMap.value = initMap;
-    }
-
-    if (startCoordinates) {
-      let marker = L.marker(startCoordinates);
-      marker.addTo(initMap);
-
-      myMap.value = initMap;
-
-      if (pickerMode) {
-        myMap.value.on('click', event => {
-          initMap.removeLayer(marker);
-          marker = L.marker(event.latlng);
-          marker.addTo(initMap);
-          myMap.value = initMap;
-          emit('setCoords', event.latlng);
+    try {
+      const initMap: Map = L.map(mapId, options);
+      L.tileLayer(TILES_FORMAT).addTo(initMap);
+      L.control.fullscreen({}).addTo(initMap);
+      if (gpxData) {
+        const gpxLayer = new L.GPX(gpxData, {
+          async: true,
+          marker_options: {
+            endIconUrl: finishPng,
+            startIconUrl: startPng,
+            shadowUrl: shadowPng,
+          },
+        }).addTo(initMap);
+        gpxLayer.on('loaded', event => {
+          const bounds = event.target.getBounds();
+          initMap.fitBounds(bounds);
+          distance.value = Math.round(event.target.get_distance() / 1000);
+          elevation.value = Math.round(event.target.get_elevation_gain());
         });
+
+        gpxLayers.value.push(gpxLayer);
       }
+      myMap.value = initMap;
+
+      if (startCoordinates) {
+        let marker = L.marker(startCoordinates).addTo(initMap);
+        markers.value.push(marker);
+        myMap.value = initMap;
+        if (pickerMode) {
+          myMap.value.on('click', event => {
+            markers.value.forEach(mark => mark.remove());
+            markers.value = [];
+            marker = L.marker(event.latlng).addTo(initMap);
+            markers.value.push(marker);
+            emit('setCoords', event.latlng);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Map loading error: ', error);
     }
   }
 });
+
 onUnmounted(() => {
   if (myMap.value) {
+    markers.value.forEach(marker => marker.remove());
+    markers.value = [];
+
+    gpxLayers.value.forEach(layer => {
+      if (myMap.value && layer instanceof L.Layer) {
+        myMap.value.removeLayer(layer);
+      }
+    });
+    gpxLayers.value = [];
+
+    myMap.value.off();
     myMap.value.remove();
     myMap.value = null;
   }

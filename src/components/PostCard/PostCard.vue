@@ -3,13 +3,17 @@ import { useDark } from '@vueuse/core';
 import type { Post } from '@/stores/fireStore';
 import ContentButton from '@/components/ContentButton.vue';
 import useFireStore from '@/stores/fireStore';
+import { computed } from 'vue';
 import MapBox from '../MapBox/MapBox.vue';
-import bikeSVG from './icons/bike.svg';
+import goingSVG from './icons/bike.svg';
+import notGoingSvg from './icons/not-going.svg';
 import favoriteSVG from './icons/favorite.svg';
 import commentSVG from './icons/comment.svg';
 import publicSVG from './icons/public.svg';
 import privateSVG from './icons/private.svg';
+import notFavoriteSvg from './icons/not-favorite.svg';
 import PopUpMenu from './PopUpMenu.vue';
+import AVATARS_PATHS from './config';
 
 const isDark = useDark();
 const useFire = useFireStore();
@@ -17,11 +21,30 @@ const { postData } = defineProps<{
   postData: Post;
 }>();
 
+const emit = defineEmits({
+  goingClick: (value: boolean) => value,
+});
+
+const isEventSetGoing = computed(() =>
+  useFire.userEventsGoing.includes(postData.id),
+);
+const isRouteSaved = computed(() =>
+  useFire.userSavedRoutes.includes(postData.id),
+);
+
 const handleGoingClick = () => {
-  useFire.setEventToGoing(postData.id);
+  if (isEventSetGoing.value) useFire.removeEventFromGoing(postData.id);
+  else {
+    useFire.setEventToGoing(postData.id);
+  }
+  emit('goingClick', true);
 };
 const handleSaveClick = () => {
-  useFire.setRouteToSaved(postData.id);
+  if (isRouteSaved.value) useFire.removeRouteFromSaved(postData.id);
+  else {
+    useFire.setRouteToSaved(postData.id);
+  }
+  emit('goingClick', true);
 };
 const handleCommentClick = () => {};
 </script>
@@ -30,7 +53,11 @@ const handleCommentClick = () => {};
   <div class="card">
     <div class="card-header">
       <div class="card-header-left">
-        <img class="avatar" :src="postData.authorAvatar" alt="avatar" />
+        <img
+          class="avatar"
+          :src="AVATARS_PATHS[postData.authorAvatar]"
+          alt="avatar"
+        />
         <div clas="host">
           <div class="author">{{ postData.author }}</div>
           <div class="visibility">
@@ -69,16 +96,16 @@ const handleCommentClick = () => {};
     <div class="details">{{ postData.details }}</div>
     <div class="card-footer">
       <ContentButton
-        :imageUrl="bikeSVG"
-        label="Going"
+        :imageUrl="isEventSetGoing ? notGoingSvg : goingSVG"
+        :label="isEventSetGoing ? 'Not Going' : 'Going'"
         :buttonId="`card-button-${postData.id}-going`"
         :key="`card-button-${postData.id}-going`"
         @click="handleGoingClick"
         v-show="postData.type === 'Event'"
       />
       <ContentButton
-        :imageUrl="favoriteSVG"
-        label="Save"
+        :imageUrl="isRouteSaved ? notFavoriteSvg : favoriteSVG"
+        :label="isRouteSaved ? 'Remove' : 'Save'"
         :buttonId="`card-button-${postData.id}-save`"
         :key="`card-button-${postData.id}-save`"
         @click="handleSaveClick"

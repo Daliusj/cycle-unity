@@ -17,7 +17,24 @@ const router = createRouter({
     {
       path: '/events',
       name: 'Events',
-      component: () => import('@/views/EventsView.vue'),
+      component: () => import('@/views/EventsView/EventsView.vue'),
+      children: [
+        {
+          path: 'all',
+          name: 'All Events',
+          component: () => import('@/views/EventsView/AllEventsView.vue'),
+        },
+        {
+          path: 'hosted',
+          name: 'Hosted Events',
+          component: () => import('@/views/EventsView/HostedEventsView.vue'),
+        },
+        {
+          path: 'going',
+          name: 'Going Events',
+          component: () => import('@/views/EventsView/GoingEventsView.vue'),
+        },
+      ],
     },
     {
       path: '/clubs',
@@ -27,27 +44,54 @@ const router = createRouter({
     {
       path: '/routes',
       name: 'Routes',
-      component: () => import('@/views/RoutesView.vue'),
+      component: () => import('@/views/RoutesView/RoutesView.vue'),
+      children: [
+        {
+          path: 'all',
+          name: 'All Routes',
+          component: () => import('@/views/RoutesView/AllRoutesView.vue'),
+        },
+        {
+          path: 'created',
+          name: 'Created Routes',
+          component: () => import('@/views/RoutesView/CreatedRoutesView.vue'),
+        },
+        {
+          path: 'favorites',
+          name: 'Favorite Routes',
+          component: () => import('@/views/RoutesView/FavoritesRoutesView.vue'),
+        },
+      ],
     },
     {
       path: '/new-event',
       name: 'New Event',
-      component: () => import('@/views/NewEventView.vue'),
+      component: () => import('@/views/EventsView/NewEventView.vue'),
     },
     {
       path: '/new-route',
       name: 'New Route',
-      component: () => import('@/views/NewRouteView.vue'),
+      component: () => import('@/views/RoutesView/NewRouteView.vue'),
     },
     {
       path: '/edit-event',
       name: 'Edit Event',
-      component: () => import('@/views/EditEventView.vue'),
+      component: () => import('@/views/EventsView/EditEventView.vue'),
     },
     {
       path: '/edit-route',
       name: 'Edit Route',
-      component: () => import('@/views/EditRouteView.vue'),
+      component: () => import('@/views/RoutesView/EditRouteView.vue'),
+    },
+    {
+      path: '/login',
+      name: 'Log in',
+      component: () => import('@/views/LoginView.vue'),
+    },
+    {
+      path: '/signup',
+      name: 'Sign up',
+      component: () => import('@/views/SignupView.vue'),
     },
   ],
 });

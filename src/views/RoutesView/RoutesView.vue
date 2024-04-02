@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import PostCard from '@/components/PostCard/PostCard.vue';
 import ContentMenu from '@/components/ContentMenu/ContentMenu.vue';
 import { useRouter } from 'vue-router';
-import useFireStore from '@/stores/fireStore';
 
-const BUTTON_LABEL = 'New Event';
+const BUTTON_LABEL = 'New Route';
 const RADIO_OPTIONS = [
-  { label: 'All', value: 'all' },
-  { label: 'Hosted', value: 'hosted' },
-  { label: 'Going', value: 'going' },
+  { label: 'All', value: '/routes/all' },
+  { label: 'Created', value: '/routes/created' },
+  { label: 'Favorites', value: '/routes/favorites' },
 ];
 
-const useFire = useFireStore();
 const router = useRouter();
 
 const handleAddClick = (): void => {
-  router.push('/new-event');
+  router.push('/new-route');
 };
 </script>
 <template>
@@ -24,13 +21,8 @@ const handleAddClick = (): void => {
       :buttonLabel="BUTTON_LABEL"
       :radioOptions="RADIO_OPTIONS"
       @addClick="handleAddClick"
-      @optionSelect="useFire.getFilteredEvents"
     />
-    <PostCard
-      v-for="(post, index) in useFire.eventsFiltered"
-      :postData="post"
-      :key="`post-${index}`"
-    />
+    <RouterView />
   </div>
 </template>
 

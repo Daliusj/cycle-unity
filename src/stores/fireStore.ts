@@ -8,7 +8,7 @@ import {
   deleteDoc,
   getDoc,
 } from 'firebase/firestore';
-import firestoreDb from '@/firebase';
+import { firestoreDb } from '@/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import type { LatLngTuple } from 'leaflet';
 import useUserStore from './userStore';
@@ -205,7 +205,7 @@ const useFireStore = defineStore('fireStore', {
               type: 'Event',
               authorId: event.authorId,
               author: `${authorData.name} ${authorData.lastName}`,
-              authorAvatar: `./src/assets/avatars/${authorData.avatar}.png`,
+              authorAvatar: authorData.avatar,
               visibility: event.visibility,
               title: event.title,
               details: event.details,
@@ -253,7 +253,7 @@ const useFireStore = defineStore('fireStore', {
                 type: 'Route',
                 authorId: route.authorId,
                 author: `${authorData.name} ${authorData.lastName}`,
-                authorAvatar: `./src/assets/avatars/${authorData.avatar}.png`,
+                authorAvatar: authorData.avatar,
                 visibility: route.visibility,
                 title: route.title,
                 details: route.details,
@@ -351,50 +351,28 @@ const useFireStore = defineStore('fireStore', {
       await this.fetchRoutes();
     },
     async setPostToHidden(postId: string) {
-      const useUser = useUserStore();
       this.userHiddenPosts = [...new Set([...this.userHiddenPosts, postId])];
-      try {
-        await setUserContent(
-          useUser.userId,
-          this.userHiddenPosts,
-          this.userSavedRoutes,
-          this.userEventsGoing,
-        );
-      } catch (error) {
-        console.error('Error set document: ', error);
-      }
-      await this.fetchEvents();
-      await this.fetchRoutes();
+      await this.setUserContent();
     },
     async setRouteToSaved(postId: string) {
-      const useUser = useUserStore();
       this.userSavedRoutes = [...new Set([...this.userSavedRoutes, postId])];
-      try {
-        await setUserContent(
-          useUser.userId,
-          this.userHiddenPosts,
-          this.userSavedRoutes,
-          this.userEventsGoing,
-        );
-      } catch (error) {
-        console.error('Error set document: ', error);
-      }
-      this.fetchUserContent();
+      await this.setUserContent();
+    },
+    async removeRouteFromSaved(postId: string) {
+      this.userSavedRoutes = this.userSavedRoutes.filter(
+        routeId => routeId !== postId,
+      );
+      await this.setUserContent();
     },
     async setEventToGoing(postId: string) {
-      const useUser = useUserStore();
       this.userEventsGoing = [...new Set([...this.userEventsGoing, postId])];
-      try {
-        await setUserContent(
-          useUser.userId,
-          this.userHiddenPosts,
-          this.userSavedRoutes,
-          this.userEventsGoing,
-        );
-      } catch (error) {
-        console.error('Error set document: ', error);
-      }
-      this.fetchUserContent();
+      await this.setUserContent();
+    },
+    async removeEventFromGoing(postId: string) {
+      this.userEventsGoing = this.userEventsGoing.filter(
+        eventId => eventId !== postId,
+      );
+      await this.setUserContent();
     },
     getFilteredEvents(option: string) {
       const useUser = useUserStore();
@@ -419,6 +397,19 @@ const useFireStore = defineStore('fireStore', {
         this.routesFiltered = this.routes.filter(
           route => route.authorId === useUser.userId,
         );
+    },
+    async setUserContent() {
+      const useUser = useUserStore();
+      try {
+        await setUserContent(
+          useUser.userId,
+          this.userHiddenPosts,
+          this.userSavedRoutes,
+          this.userEventsGoing,
+        );
+      } catch (error) {
+        console.error('Error set document: ', error);
+      }
     },
   },
 });

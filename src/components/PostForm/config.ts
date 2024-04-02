@@ -19,6 +19,6 @@ export const TEXTS = {
 };
 
 export const LINKS = {
-  event: '/events',
-  route: '/routes',
+  event: '/events/all',
+  route: '/routes/all',
 };

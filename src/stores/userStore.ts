@@ -1,17 +1,31 @@
 import { defineStore } from 'pinia';
+import { auth } from '@/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const USER_ID = '123456';
 type UserState = {
-  userId: string;
+  userId: string | null;
 };
 
-const useUserStore = defineStore('currentUserId', {
+const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    userId: USER_ID,
+    userId: null,
   }),
   actions: {
-    getUserId() {
-      this.userId = USER_ID;
+    setUser(userId: string) {
+      this.userId = userId;
+    },
+    clearUser() {
+      this.userId = null;
+    },
+    monitorAuthState() {
+      onAuthStateChanged(auth, user => {
+        if (user) {
+          this.setUser(user.uid);
+        } else {
+          this.clearUser();
+        }
+      });
     },
   },
 });

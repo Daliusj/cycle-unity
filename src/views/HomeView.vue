@@ -8,9 +8,9 @@ const useFire = useFireStore();
 <template>
   <div class="timeline">
     <PostCard
-      v-for="(post, index) in [...useFire.events, ...useFire.routes]"
+      v-for="post in [...useFire.events, ...useFire.routes]"
       :postData="post"
-      :key="`post-${index}`"
+      :key="`post-${post.id}`"
     />
   </div>
 </template>

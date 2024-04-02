@@ -1,24 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ContentButton from '@/components/ContentButton.vue';
+import { useRouter } from 'vue-router';
 import addSvg from './icons/create.svg';
 
+const router = useRouter();
 const { buttonLabel, radioOptions } = defineProps<{
   buttonLabel: string;
   radioOptions: { label: string; value: string }[];
 }>();
 
-const selectedOption = ref('all');
-
+const selectedOption = ref(radioOptions[0].value);
 const emit = defineEmits({
   addClick: (value: boolean) => value,
-  optionSelect: (value: string) => value,
 });
-
-const selectOption = (value: string) => {
-  selectedOption.value = value;
-  emit('optionSelect', value);
-};
 </script>
 <template>
   <div class="content-menu">
@@ -35,7 +30,7 @@ const selectOption = (value: string) => {
         :key="option.value"
         class="radio-option"
         tabindex="0"
-        @keyup.enter="selectOption(option.value)"
+        @keyup.enter="router.push(option.value)"
       >
         <input
           type="radio"
@@ -43,7 +38,7 @@ const selectOption = (value: string) => {
           :value="option.value"
           v-model="selectedOption"
           class="hidden-radio"
-          @change="emit('optionSelect', option.value)"
+          @change="router.push(option.value)"
         />
         <label :for="option.value">{{ option.label }}</label>
       </div>
