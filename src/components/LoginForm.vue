@@ -4,31 +4,29 @@ import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import { auth } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import ContentButton from './ContentButton.vue';
 
 const router = useRouter();
 const isDark = useDark();
 const email = ref('');
 const password = ref('');
-const loginError = ref('');
+const signupError = ref('');
 
 const handleSubmit = async () => {
   signInWithEmailAndPassword(auth, email.value, password.value)
-    .then(userCredential => {
-      const { user } = userCredential;
-      console.log(user);
+    .then(() => {
       router.push('/');
     })
     .catch(error => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(errorCode, errorMessage);
+      const [, code] = error.code.split('/');
+      signupError.value = code.split('-').join(' ');
     });
 };
 </script>
 
 <template>
   <form @submit.prevent="handleSubmit" class="login-form">
-    <div class="input-container">
+    <div class="container">
       <label for="email">Email</label>
       <input
         id="email"
@@ -39,7 +37,7 @@ const handleSubmit = async () => {
       />
     </div>
 
-    <div class="input-container">
+    <div class="container">
       <label for="password">Password</label>
       <input
         id="password"
@@ -50,17 +48,24 @@ const handleSubmit = async () => {
       />
     </div>
 
-    <div class="alert" v-if="loginError">{{ loginError }}</div>
-
-    <button
-      type="submit"
+    <div class="alert" v-if="signupError">{{ signupError }}</div>
+    <ContentButton
+      :label="'Sign in'"
+      :buttonId="`login-form-submit-button`"
       class="btn extra-margin"
       :class="isDark ? 'btn-dark' : 'btn-light'"
-    >
-      Log in
-    </button>
-    <div>
-      Don't have an account? <RouterLink to="/signup">Sign up</RouterLink>
+      @click="handleSubmit"
+    />
+    <div class="container">
+      Don't have an account?
+      <RouterLink to="/signup" class="link">
+        <ContentButton
+          :label="'Sign up'"
+          :buttonId="`login-form-link-button`"
+          class="btn"
+          :class="isDark ? 'btn-dark' : 'btn-light'"
+        />
+      </RouterLink>
     </div>
   </form>
 </template>
@@ -71,11 +76,11 @@ const handleSubmit = async () => {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  width: 100%;
-  max-width: 640px;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: var(--main-padding);
 }
 
-.input-container {
+.container {
   width: 100%;
 }
 
@@ -103,8 +108,12 @@ input {
 }
 
 .alert {
-  color: var(--vt-c-red);
-  text-align: center;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.link {
+  text-decoration: none;
 }
 </style>

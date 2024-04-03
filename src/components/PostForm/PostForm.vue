@@ -23,7 +23,7 @@ const selectedDetails = ref('');
 const selectedDate = ref('');
 const selectedVisibility = ref('public');
 const selectedCoords = ref<LatLngTuple>(DEFAULT_COORDS);
-const selectedGpxData = ref<string | undefined>();
+const selectedGpxData = ref<string | null>();
 const fileName = ref<string>('');
 const { mode, postType } = defineProps<{
   mode: string;
@@ -129,7 +129,8 @@ const handleSubmit = async () => {
     isTitleValid.value &&
     isDateSelected.value &&
     isFileUploaded.value &&
-    isLocationPicked.value
+    isLocationPicked.value &&
+    useUser.userId
   ) {
     await useFire.setPost({
       id: useFire.postToEdit.id || '',
@@ -145,7 +146,7 @@ const handleSubmit = async () => {
       time:
         postType === 'event' ? moment(selectedDate.value).format('HH:mm') : '',
       location: selectedCoords.value as LatLngTuple,
-      gpxData: selectedGpxData.value,
+      gpxData: selectedGpxData.value || null,
       gpxId: useFire.postToEdit.gpxId,
       gpxFileName: fileName.value,
     });
@@ -362,25 +363,6 @@ h2 {
   gap: 1rem;
 }
 
-.btn {
-  width: 100%;
-  height: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-}
-
-.extra-margin {
-  margin-top: 2rem;
-}
-
-.btn-dark {
-  background-color: var(--vt-c-orange);
-}
-.btn-light {
-  background-color: var(--vt-c-yellow);
-}
 .btn-clear-dark {
   background-color: black;
   border: 1px solid var(--vt-c-orange);

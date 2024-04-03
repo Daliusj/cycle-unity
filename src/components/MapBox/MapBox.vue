@@ -16,7 +16,7 @@ const TILES_FORMAT = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const { id, startCoordinates, gpxData, pickerMode } = defineProps<{
   id: string;
   startCoordinates?: LatLngExpression;
-  gpxData?: string | undefined;
+  gpxData?: string | null;
   pickerMode?: boolean;
 }>();
 

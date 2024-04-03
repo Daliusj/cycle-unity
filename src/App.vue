@@ -17,10 +17,12 @@ watch(
   () => useUser.userId,
   userId => {
     if (userId) {
-      console.log(userId);
       useFire.fetchEvents();
       useFire.fetchRoutes();
       useFire.fetchUserContent();
+      useFire.fetchUserDetails();
+      useFire.fetchComments();
+      router.push('/');
     } else {
       router.push('/login');
     }
@@ -30,10 +32,21 @@ watch(
 </script>
 
 <template>
-  <main>
+  <main :class="{ 'main-login': !useUser.userId }">
     <RouterView />
   </main>
   <footer v-if="useUser.userId">
     <NavMenu :vertical="false" />
   </footer>
 </template>
+<style scoped>
+.main-login {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+</style>

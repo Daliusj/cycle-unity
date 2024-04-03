@@ -15,9 +15,9 @@ const { id, postType, authorId, gpxId, gpxData, gpxFileName } = defineProps<{
   id: string;
   postType: string;
   authorId: string;
-  gpxId: string | undefined;
-  gpxData: string | undefined;
-  gpxFileName: string | undefined;
+  gpxId: string | null;
+  gpxData: string | null;
+  gpxFileName: string | null;
 }>();
 const toggleMenu = () => {
   isMenuVisible.value = !isMenuVisible.value;

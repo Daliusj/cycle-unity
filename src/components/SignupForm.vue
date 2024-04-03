@@ -1,47 +1,76 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import { auth } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import useFireStore from '@/stores/fireStore';
+import ContentButton from './ContentButton.vue';
 
 const router = useRouter();
 const isDark = useDark();
-const username = ref('');
+const useFire = useFireStore();
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const signupError = ref('');
 
+const AVATARS = [
+  'cyclistOne',
+  'cyclistTwo',
+  'cyclistThree',
+  'cyclistFour',
+  'cyclistFive',
+];
+
+const isValidEmail = computed(() => {
+  return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email.value);
+});
+const isValidPassword = computed(() => {
+  return password.value.length >= 6;
+});
+const doPasswordsMatch = computed(() => {
+  return password.value === confirmPassword.value;
+});
+
+const isInputsValid = () => {
+  if (!isValidEmail.value) {
+    signupError.value = 'Invalid Email';
+    return false;
+  }
+  if (!isValidPassword.value) {
+    signupError.value = 'Week password';
+    return false;
+  }
+  if (!doPasswordsMatch.value) {
+    signupError.value = 'Passwords do not match';
+    return false;
+  }
+  return true;
+};
+
 const handleSubmit = () => {
+  if (!isInputsValid()) return;
   createUserWithEmailAndPassword(auth, email.value, password.value)
     .then(userCredential => {
       const { user } = userCredential;
-      console.log(user);
-      router.push('/');
+      const name = `Cyclist${Math.floor(1000 + Math.random() * 9000)}`;
+      const lastName = `Wheel${Math.floor(1000 + Math.random() * 9000)}`;
+      const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+      useFire.setUserContent(user.uid);
+      useFire.setUserDetails(user.uid, avatar, name, lastName);
+      router.push('/profile');
     })
     .catch(error => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(errorCode, errorMessage);
+      const [, code] = error.code.split('/');
+      signupError.value = code.split('-').join(' ');
     });
 };
 </script>
 
 <template>
   <form @submit.prevent="handleSubmit" class="login-form">
-    <div class="input-container">
-      <label for="username">Username</label>
-      <input
-        id="username"
-        type="text"
-        v-model="username"
-        placeholder="Choose a username"
-        :class="{ invert: isDark }"
-      />
-    </div>
-
-    <div class="input-container">
+    <div class="container">
       <label for="email">Email</label>
       <input
         id="email"
@@ -52,7 +81,7 @@ const handleSubmit = () => {
       />
     </div>
 
-    <div class="input-container">
+    <div class="container">
       <label for="password">Password</label>
       <input
         id="password"
@@ -63,7 +92,7 @@ const handleSubmit = () => {
       />
     </div>
 
-    <div class="input-container">
+    <div class="container">
       <label for="confirmPassword">Confirm Password</label>
       <input
         id="confirmPassword"
@@ -76,13 +105,24 @@ const handleSubmit = () => {
 
     <div class="alert" v-if="signupError">{{ signupError }}</div>
 
-    <button
-      type="submit"
+    <ContentButton
+      :label="'Sign up'"
+      :buttonId="`signup-form-submit-button`"
       class="btn extra-margin"
       :class="isDark ? 'btn-dark' : 'btn-light'"
-    >
-      Sign Up
-    </button>
+      @click="handleSubmit"
+    />
+    <div class="container">
+      Have an account?
+      <RouterLink to="/login" class="link">
+        <ContentButton
+          :label="'Log in'"
+          :buttonId="`signup-form-link-button`"
+          class="btn"
+          :class="isDark ? 'btn-dark' : 'btn-light'"
+        />
+      </RouterLink>
+    </div>
   </form>
 </template>
 
@@ -92,11 +132,11 @@ const handleSubmit = () => {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  width: 100%;
-  max-width: 640px;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: var(--main-padding);
 }
 
-.input-container {
+.container {
   width: 100%;
 }
 
@@ -124,8 +164,13 @@ input {
 }
 
 .alert {
-  color: var(--vt-c-red);
-  text-align: center;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.link {
+  text-decoration: none;
 }
 </style>

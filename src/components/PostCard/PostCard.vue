@@ -3,7 +3,7 @@ import { useDark } from '@vueuse/core';
 import type { Post } from '@/stores/fireStore';
 import ContentButton from '@/components/ContentButton.vue';
 import useFireStore from '@/stores/fireStore';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import MapBox from '../MapBox/MapBox.vue';
 import goingSVG from './icons/bike.svg';
 import notGoingSvg from './icons/not-going.svg';
@@ -14,7 +14,9 @@ import privateSVG from './icons/private.svg';
 import notFavoriteSvg from './icons/not-favorite.svg';
 import PopUpMenu from './PopUpMenu.vue';
 import AVATARS_PATHS from './config';
+import PostComments from './PostComments.vue';
 
+const isCommentsToggled = ref<boolean>(false);
 const isDark = useDark();
 const useFire = useFireStore();
 const { postData } = defineProps<{
@@ -46,7 +48,9 @@ const handleSaveClick = () => {
   }
   emit('goingClick', true);
 };
-const handleCommentClick = () => {};
+const handleCommentClick = () => {
+  isCommentsToggled.value = !isCommentsToggled.value;
+};
 </script>
 
 <template>
@@ -113,10 +117,17 @@ const handleCommentClick = () => {};
       />
       <ContentButton
         :imageUrl="commentSVG"
-        label="Comment"
+        :label="isCommentsToggled ? 'Hide comments' : 'Show comments'"
         :buttonId="`card-button-${postData.id}-comment`"
         :key="`card-button-${postData.id}-comment`"
         @click="handleCommentClick"
+      />
+    </div>
+    <div>
+      <PostComments
+        v-show="isCommentsToggled"
+        :postId="postData.id"
+        :class="isDark ? 'borders-dark' : 'borders-light'"
       />
     </div>
   </div>
@@ -127,7 +138,7 @@ const handleCommentClick = () => {};
   padding: var(--main-padding);
   position: relative;
   width: 100%;
-  max-height: calc(100vh - var(--header-height) - var(--footer-height));
+  /* max-height: calc(100vh - var(--header-height) - var(--footer-height)); */
 }
 
 .card-header {
@@ -181,5 +192,14 @@ const handleCommentClick = () => {};
 
 .invert {
   filter: invert();
+}
+
+.borders-light {
+  border-right: 0.5px solid black;
+  border-left: 0.5px solid black;
+}
+.borders-dark {
+  border-right: 0.5px solid white;
+  border-left: 0.5px solid white;
 }
 </style>
