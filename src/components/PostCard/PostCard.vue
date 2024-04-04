@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core';
-import type { Post } from '@/stores/fireStore';
 import ContentButton from '@/components/ContentButton.vue';
-import useFireStore from '@/stores/fireStore';
 import { computed, ref } from 'vue';
+import type { Post } from '@/stores/fireStore/types';
+import useFireStore from '@/stores/fireStore/fireStore';
 import MapBox from '../MapBox/MapBox.vue';
 import goingSVG from './icons/bike.svg';
 import notGoingSvg from './icons/not-going.svg';
@@ -101,7 +101,7 @@ const handleCommentClick = () => {
     <div class="card-footer">
       <ContentButton
         :imageUrl="isEventSetGoing ? notGoingSvg : goingSVG"
-        :label="isEventSetGoing ? 'Not Going' : 'Going'"
+        :label="isEventSetGoing ? 'Decline Event' : 'Join event'"
         :buttonId="`card-button-${postData.id}-going`"
         :key="`card-button-${postData.id}-going`"
         @click="handleGoingClick"
@@ -138,7 +138,6 @@ const handleCommentClick = () => {
   padding: var(--main-padding);
   position: relative;
   width: 100%;
-  /* max-height: calc(100vh - var(--header-height) - var(--footer-height)); */
 }
 
 .card-header {
@@ -188,6 +187,7 @@ const handleCommentClick = () => {
 .card-footer {
   display: flex;
   justify-content: space-between;
+  padding-top: 8px;
 }
 
 .invert {
@@ -203,3 +203,4 @@ const handleCommentClick = () => {
   border-left: 0.5px solid white;
 }
 </style>
+@/stores/fireStore/fireStore@/stores/fireStore/fireStore

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import PostCard from '@/components/PostCard/PostCard.vue';
-import useFireStore from '@/stores/fireStore';
 import { onBeforeMount } from 'vue';
+import EmptyContent from '@/components/EmptyContent.vue';
+import useFireStore from '@/stores/fireStore/fireStore';
 
 const useFire = useFireStore();
 
@@ -20,4 +21,6 @@ const handleGoingClick = () => {
     :key="`post-${post.id}`"
     @goingClick="handleGoingClick"
   />
+  <EmptyContent v-show="!useFire.eventsFiltered.length" />
 </template>
+@/stores/fireStore/fireStore

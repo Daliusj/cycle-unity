@@ -7,14 +7,8 @@ import UserForm from '@/components/UserForm.vue';
 import ContentButton from '@/components/ContentButton.vue';
 
 const router = useRouter();
-const isDark = useDark({
-  selector: 'body',
-  attribute: 'class',
-  valueDark: 'dark',
-  valueLight: 'light',
-});
+const isDark = useDark();
 const toggleDark = useToggle(isDark);
-
 const handleSignOut = () => {
   signOut(auth)
     .then(() => {

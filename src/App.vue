@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 import NavMenu from '@/components/NavMenu/NavMenu.vue';
-import useFireStore from '@/stores/fireStore';
 import { onMounted, watch } from 'vue';
+import { useDark } from '@vueuse/core';
+import useFireStore from '@/stores/fireStore/fireStore';
 import useUserStore from './stores/userStore';
 import router from './router/index';
 
@@ -12,7 +13,12 @@ const useUser = useUserStore();
 onMounted(() => {
   useUser.monitorAuthState();
 });
-
+useDark({
+  selector: 'body',
+  attribute: 'class',
+  valueDark: 'dark',
+  valueLight: 'light',
+});
 watch(
   () => useUser.userId,
   userId => {
@@ -50,3 +56,4 @@ watch(
   align-items: center;
 }
 </style>
+@/stores/fireStore/fireStore

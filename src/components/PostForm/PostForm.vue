@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import Datepicker from '@vuepic/vue-datepicker';
 import type { LatLngTuple, LatLng } from 'leaflet';
-import useFireStore from '@/stores/fireStore';
 import moment from 'moment';
+import useFireStore from '@/stores/fireStore/fireStore';
 import ContentButton from '../ContentButton.vue';
 import closeSvg from './icons/close.svg';
 import MapBox from '../MapBox/MapBox.vue';
@@ -383,3 +383,4 @@ h2 {
   justify-content: center;
 }
 </style>
+@/stores/fireStore/fireStore

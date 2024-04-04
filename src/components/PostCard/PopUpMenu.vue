@@ -3,9 +3,9 @@ import { useDark } from '@vueuse/core';
 import { ref, computed } from 'vue';
 import ContentButton from '@/components/ContentButton.vue';
 import { useRouter } from 'vue-router';
+import useFireStore from '@/stores/fireStore/fireStore';
 import moreSVG from './icons/more.svg';
 import useUserStore from '../../stores/userStore';
-import useFireStore from '../../stores/fireStore';
 
 const router = useRouter();
 const useFire = useFireStore();
@@ -144,3 +144,4 @@ const handelDownloadButtonClick = () => {
   background-color: var(--vt-c-yellow);
 }
 </style>
+../../stores/fireStore/fireStore

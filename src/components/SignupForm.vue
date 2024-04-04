@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import { auth } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import useFireStore from '@/stores/fireStore';
+import useFireStore from '@/stores/fireStore/fireStore';
 import ContentButton from './ContentButton.vue';
 
 const router = useRouter();
@@ -174,3 +174,4 @@ input {
   text-decoration: none;
 }
 </style>
+@/stores/fireStore/fireStore

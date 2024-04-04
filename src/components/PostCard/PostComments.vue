@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ContentButton from '@/components/ContentButton.vue';
-import useFireStore from '@/stores/fireStore';
 import { useDark } from '@vueuse/core';
 import useUserStore from '@/stores/userStore';
+import moment from 'moment';
+import useFireStore from '@/stores/fireStore/fireStore';
 import AVATARS_PATHS from './config';
 import sendSvg from './icons/send.svg';
 
@@ -15,12 +16,15 @@ const { postId } = defineProps<{
   postId: string;
 }>();
 
-const handleSubmit = () => {
-  const date = new Date().toISOString().slice(0, 10);
-  const time = new Date().toTimeString().slice(0, 5);
-  if (input.value && useUser.userId) {
-    useFire.setComment(postId, useUser.userId, date, time, input.value);
-  }
+const handleSubmit = async () => {
+  const date = moment().format('YYYY-MM-DD');
+  const time = moment().format('HH:mm');
+  const setComment = async () => {
+    if (input.value && useUser.userId) {
+      useFire.setComment(postId, useUser.userId, date, time, input.value);
+    }
+  };
+  setComment();
   input.value = '';
 };
 </script>
@@ -137,3 +141,4 @@ const handleSubmit = () => {
   color: var(--color-placeholder);
 }
 </style>
+@/stores/fireStore/fireStore

@@ -2,8 +2,8 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
-import useFireStore from '@/stores/fireStore';
 import useUserStore from '@/stores/userStore';
+import useFireStore from '@/stores/fireStore/fireStore';
 import ContentButton from './ContentButton.vue';
 
 const isDark = useDark();
@@ -121,3 +121,4 @@ input {
   text-decoration: none;
 }
 </style>
+@/stores/fireStore/fireStore
