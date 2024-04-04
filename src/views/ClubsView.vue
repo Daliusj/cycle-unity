@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core';
 
+const MESSAGE_TEXT = 'Clubs coming soon!';
+
 const isDark = useDark();
 </script>
 <template>
   <div class="background">
     <div class="logo" :class="isDark ? 'text-dark' : 'text-light'">
-      Clubs coming soon!
+      {{ MESSAGE_TEXT }}
     </div>
   </div>
 </template>

@@ -1,0 +1,26 @@
+const ROUTER_PATHS = {
+  home: '/',
+  profile: '/profile',
+  events: '/events',
+  eventsAll: '/events/all',
+  eventsHosted: '/events/hosted',
+  eventsGoing: '/events/going',
+  clubs: '/clubs',
+  routes: '/routes',
+  routesAll: '/routes/all',
+  routesCreated: '/routes/created',
+  routesFavorites: '/routes/favorites',
+  newEvent: '/new-event',
+  newRoute: '/new-route',
+  editEvent: '/edit-event',
+  editRoute: '/edit-route',
+  login: '/login',
+  signup: '/signup',
+  allEndpoint: 'all',
+  hostedEndpoint: 'hosted',
+  goingEndpoint: 'going',
+  favoritesEndpoint: 'favorites',
+  createdEndpoint: 'created',
+};
+
+export default ROUTER_PATHS;

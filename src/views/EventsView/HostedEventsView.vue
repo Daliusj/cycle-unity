@@ -3,11 +3,12 @@ import PostCard from '@/components/PostCard/PostCard.vue';
 import { onBeforeMount } from 'vue';
 import EmptyContent from '@/components/EmptyContent.vue';
 import useFireStore from '@/stores/fireStore/fireStore';
+import { POST_FILTER_HOSTED_ID } from '../../stores/fireStore/fireStoreConfig';
 
 const useFire = useFireStore();
 
 onBeforeMount(() => {
-  useFire.getFilteredEvents('hosted');
+  useFire.getFilteredEvents(POST_FILTER_HOSTED_ID);
 });
 </script>
 <template>

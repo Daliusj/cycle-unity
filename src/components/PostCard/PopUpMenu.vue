@@ -7,6 +7,15 @@ import useFireStore from '@/stores/fireStore/fireStore';
 import moreSVG from './icons/more.svg';
 import useUserStore from '../../stores/userStore';
 
+const DEFAULT_FILE_NAME = 'track.gpx';
+const BLOB_TYPE = 'application/gpx+xml';
+const TEXTS = {
+  download: 'Download GPX',
+  edit: 'Edit',
+  hide: 'Hide post',
+  delete: 'Delete',
+};
+
 const router = useRouter();
 const useFire = useFireStore();
 const isMenuVisible = ref(false);
@@ -40,7 +49,7 @@ const handelDeleteButtonClick = () => {
 };
 
 const downloadGpx = (gpx: string, fileName: string) => {
-  const blob = new Blob([gpx], { type: 'application/gpx+xml' });
+  const blob = new Blob([gpx], { type: BLOB_TYPE });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -52,7 +61,7 @@ const downloadGpx = (gpx: string, fileName: string) => {
 };
 
 const handelDownloadButtonClick = () => {
-  if (gpxData) downloadGpx(gpxData, gpxFileName || 'route.gpx');
+  if (gpxData) downloadGpx(gpxData, gpxFileName || DEFAULT_FILE_NAME);
 
   toggleMenu();
 };
@@ -72,7 +81,7 @@ const handelDownloadButtonClick = () => {
       :class="isDark ? 'menu-background-dark' : 'menu-background-light'"
     >
       <ContentButton
-        label="Download GPX"
+        :label="TEXTS.download"
         :buttonId="`popup-menu-button-downloadgpx-${id}`"
         class="btn"
         :class="isDark ? 'btn-dark' : 'btn-light'"
@@ -80,7 +89,7 @@ const handelDownloadButtonClick = () => {
         v-show="gpxData"
       />
       <ContentButton
-        label="Edit"
+        :label="TEXTS.edit"
         :buttonId="`popup-menu-button-edit-${id}`"
         class="btn"
         :class="isDark ? 'btn-dark' : 'btn-light'"
@@ -88,14 +97,14 @@ const handelDownloadButtonClick = () => {
         v-show="isUserAuthor"
       />
       <ContentButton
-        label="Hide post"
+        :label="TEXTS.hide"
         :buttonId="`popup-menu-button-hide-${id}`"
         class="btn"
         :class="isDark ? 'btn-dark' : 'btn-light'"
         @click="handelHideButtonClick"
       />
       <ContentButton
-        label="Delete"
+        :label="TEXTS.delete"
         :buttonId="`popup-menu-button-Delete-${id}`"
         class="btn"
         :class="isDark ? 'btn-dark' : 'btn-light'"

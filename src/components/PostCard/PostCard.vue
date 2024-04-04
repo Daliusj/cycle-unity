@@ -4,6 +4,11 @@ import ContentButton from '@/components/ContentButton.vue';
 import { computed, ref } from 'vue';
 import type { Post } from '@/stores/fireStore/types';
 import useFireStore from '@/stores/fireStore/fireStore';
+import {
+  POST_VISIBILITY_ID_PUBLIC,
+  EVENT_ID,
+  ROUTE_ID,
+} from '@/stores/fireStore/fireStoreConfig';
 import MapBox from '../MapBox/MapBox.vue';
 import goingSVG from './icons/bike.svg';
 import notGoingSvg from './icons/not-going.svg';
@@ -15,6 +20,17 @@ import notFavoriteSvg from './icons/not-favorite.svg';
 import PopUpMenu from './PopUpMenu.vue';
 import AVATARS_PATHS from './config';
 import PostComments from './PostComments.vue';
+
+const TEXTS = {
+  public: 'Public',
+  private: 'Private',
+  declineEvent: 'Decline Event',
+  joinEvent: 'Join event',
+  save: 'Save',
+  remove: 'Remove',
+  hide: 'Hide comments',
+  show: 'Show comments',
+};
 
 const isCommentsToggled = ref<boolean>(false);
 const isDark = useDark();
@@ -65,11 +81,18 @@ const handleCommentClick = () => {
         <div clas="host">
           <div class="author">{{ postData.author }}</div>
           <div class="visibility">
-            {{ postData.visibility === 'public' ? 'Public' : 'Private'
+            {{
+              postData.visibility === POST_VISIBILITY_ID_PUBLIC
+                ? TEXTS.public
+                : TEXTS.private
             }}<img
               class="visibility-icon"
               :class="{ invert: isDark }"
-              :src="postData.visibility === 'public' ? publicSVG : privateSVG"
+              :src="
+                postData.visibility === POST_VISIBILITY_ID_PUBLIC
+                  ? publicSVG
+                  : privateSVG
+              "
               alt="visibility"
             />
           </div>
@@ -87,7 +110,7 @@ const handleCommentClick = () => {
     <div class="title">
       {{ `${postData.type}: ${postData.title}` }}
     </div>
-    <div class="date" v-show="postData.type === 'Event'">
+    <div class="date" v-show="postData.type === EVENT_ID">
       {{ `${postData.date} ${postData.time}` }}
     </div>
     <div class="map">
@@ -101,23 +124,23 @@ const handleCommentClick = () => {
     <div class="card-footer">
       <ContentButton
         :imageUrl="isEventSetGoing ? notGoingSvg : goingSVG"
-        :label="isEventSetGoing ? 'Decline Event' : 'Join event'"
+        :label="isEventSetGoing ? TEXTS.declineEvent : TEXTS.joinEvent"
         :buttonId="`card-button-${postData.id}-going`"
         :key="`card-button-${postData.id}-going`"
         @click="handleGoingClick"
-        v-show="postData.type === 'Event'"
+        v-show="postData.type === EVENT_ID"
       />
       <ContentButton
         :imageUrl="isRouteSaved ? notFavoriteSvg : favoriteSVG"
-        :label="isRouteSaved ? 'Remove' : 'Save'"
+        :label="isRouteSaved ? TEXTS.remove : TEXTS.save"
         :buttonId="`card-button-${postData.id}-save`"
         :key="`card-button-${postData.id}-save`"
         @click="handleSaveClick"
-        v-show="postData.type === 'Route'"
+        v-show="postData.type === ROUTE_ID"
       />
       <ContentButton
         :imageUrl="commentSVG"
-        :label="isCommentsToggled ? 'Hide comments' : 'Show comments'"
+        :label="isCommentsToggled ? TEXTS.hide : TEXTS.show"
         :buttonId="`card-button-${postData.id}-comment`"
         :key="`card-button-${postData.id}-comment`"
         @click="handleCommentClick"

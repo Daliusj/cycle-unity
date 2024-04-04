@@ -6,13 +6,26 @@ import Datepicker from '@vuepic/vue-datepicker';
 import type { LatLngTuple, LatLng } from 'leaflet';
 import moment from 'moment';
 import useFireStore from '@/stores/fireStore/fireStore';
+import {
+  POST_DATA_TYPE_EVENT_ID,
+  POST_DATA_TYPE_ROUTE_ID,
+  POST_VISIBILITY_ID_PUBLIC,
+  POST_VISIBILITY_ID_PRIVATE,
+} from '@/stores/fireStore/fireStoreConfig';
+import ROUTER_PATHS from '@/router/routerConfig';
 import ContentButton from '../ContentButton.vue';
 import closeSvg from './icons/close.svg';
 import MapBox from '../MapBox/MapBox.vue';
-import { MAX_TITLE_LENGTH, ALERT_MESSAGES, TEXTS, LINKS } from './config';
+import {
+  MAX_TITLE_LENGTH,
+  ALERT_MESSAGES,
+  TEXTS,
+  LINKS,
+  EDIT_MODE_ID,
+  DEFAULT_COORDS,
+  DEFAULT_GPX_FILE_NAME,
+} from './config';
 import useUserStore from '../../stores/userStore';
-
-const DEFAULT_COORDS: LatLngTuple = [54.8985, 23.9036];
 
 const useUser = useUserStore();
 const useFire = useFireStore();
@@ -21,7 +34,7 @@ const router = useRouter();
 const selectedTitle = ref('');
 const selectedDetails = ref('');
 const selectedDate = ref('');
-const selectedVisibility = ref('public');
+const selectedVisibility = ref(POST_VISIBILITY_ID_PUBLIC);
 const selectedCoords = ref<LatLngTuple>(DEFAULT_COORDS);
 const selectedGpxData = ref<string | null>();
 const fileName = ref<string>('');
@@ -29,22 +42,25 @@ const { mode, postType } = defineProps<{
   mode: string;
   postType: string;
 }>();
-const isFileUploaded = ref<boolean>(postType === 'event');
-const isDateSelected = ref<boolean>(postType === 'route');
-const isLocationPicked = ref<boolean>(postType === 'route');
+const isFileUploaded = ref<boolean>(postType === POST_DATA_TYPE_EVENT_ID);
+const isDateSelected = ref<boolean>(postType === POST_DATA_TYPE_ROUTE_ID);
+const isLocationPicked = ref<boolean>(postType === POST_DATA_TYPE_ROUTE_ID);
 const isTitleValid = ref(false);
 const titleAlertMessage = ref(ALERT_MESSAGES.noTitle);
 
 watch(selectedGpxData, () => {
-  if (postType === 'route') isFileUploaded.value = !!selectedGpxData.value;
+  if (postType === POST_DATA_TYPE_ROUTE_ID)
+    isFileUploaded.value = !!selectedGpxData.value;
 });
 
 watch(selectedDate, () => {
-  if (postType === 'event') isDateSelected.value = !!selectedDate.value;
+  if (postType === POST_DATA_TYPE_EVENT_ID)
+    isDateSelected.value = !!selectedDate.value;
 });
 
 watch(selectedCoords, () => {
-  if (postType === 'event') isLocationPicked.value = !!selectedCoords.value;
+  if (postType === POST_DATA_TYPE_EVENT_ID)
+    isLocationPicked.value = !!selectedCoords.value;
 });
 
 watch(selectedTitle, () => {
@@ -68,10 +84,10 @@ const getVisibilityButtonClass = (value: string, showDark: boolean) => {
 };
 
 const publicButtonClass = computed(() =>
-  getVisibilityButtonClass('public', isDark.value),
+  getVisibilityButtonClass(POST_VISIBILITY_ID_PUBLIC, isDark.value),
 );
 const privateButtonClass = computed(() =>
-  getVisibilityButtonClass('private', isDark.value),
+  getVisibilityButtonClass(POST_VISIBILITY_ID_PRIVATE, isDark.value),
 );
 
 const isKeyOfObject = (key: string, object: {}): key is keyof typeof object =>
@@ -88,11 +104,11 @@ const getEscapeLink = () => {
   if (isKeyOfObject(postType, LINKS)) {
     return LINKS[postType];
   }
-  return '/';
+  return ROUTER_PATHS.home;
 };
 
 onBeforeMount(() => {
-  if (mode === 'edit') {
+  if (mode === EDIT_MODE_ID) {
     selectedTitle.value = useFire.postToEdit.title;
     selectedDetails.value = useFire.postToEdit.details;
     selectedDate.value = `${useFire.postToEdit.date}T${useFire.postToEdit.time}`;
@@ -100,7 +116,7 @@ onBeforeMount(() => {
     selectedCoords.value =
       useFire.postToEdit.startCoordinates || DEFAULT_COORDS;
     selectedGpxData.value = useFire.postToEdit.gpxData;
-    fileName.value = useFire.postToEdit.gpxFileName || 'route.gpx';
+    fileName.value = useFire.postToEdit.gpxFileName || DEFAULT_GPX_FILE_NAME;
   }
 });
 
@@ -111,7 +127,7 @@ const setCoords = (coords: LatLng): void => {
 const handleGpxUpload = (event: Event): void => {
   const input = event.target as HTMLInputElement;
   if (!input.files?.length) return;
-  fileName.value = input.value.split('\\').pop() || 'Something wrong';
+  fileName.value = input.value.split('\\').pop() || DEFAULT_GPX_FILE_NAME;
   const file = input.files[0];
   const reader = new FileReader();
 
@@ -140,11 +156,13 @@ const handleSubmit = async () => {
       title: selectedTitle.value,
       details: selectedDetails.value,
       date:
-        postType === 'event'
+        postType === POST_DATA_TYPE_EVENT_ID
           ? moment(selectedDate.value).format('YYYY-MM-DD')
           : '',
       time:
-        postType === 'event' ? moment(selectedDate.value).format('HH:mm') : '',
+        postType === POST_DATA_TYPE_EVENT_ID
+          ? moment(selectedDate.value).format('HH:mm')
+          : '',
       location: selectedCoords.value as LatLngTuple,
       gpxData: selectedGpxData.value || null,
       gpxId: useFire.postToEdit.gpxId,
@@ -173,7 +191,7 @@ const handleSubmit = async () => {
     <input
       class="title"
       type="text"
-      placeholder="My title"
+      :placeholder="TEXTS.titlePlaceholder"
       id="title"
       v-model="selectedTitle"
       :class="{ invert: isDark }"
@@ -185,18 +203,18 @@ const handleSubmit = async () => {
     <textarea
       class="details"
       type="text"
-      placeholder="My details"
+      :placeholder="TEXTS.detailsPlacholder"
       id="details"
       v-model="selectedDetails"
       :class="{ invert: isDark }"
     >
     </textarea>
 
-    <label v-show="postType === 'event'" for="date-picker">{{
+    <label v-show="postType === POST_DATA_TYPE_EVENT_ID" for="date-picker">{{
       TEXTS.datePick
     }}</label>
     <Datepicker
-      v-show="postType === 'event'"
+      v-show="postType === POST_DATA_TYPE_EVENT_ID"
       id="date-picker"
       v-model="selectedDate"
       time-picker-inline
@@ -260,8 +278,10 @@ const handleSubmit = async () => {
       class="file-upload"
     />
 
-    <label v-show="postType === 'event'" for="map">{{ TEXTS.mapPick }}</label>
-    <div v-show="postType === 'event'" class="map" id="map">
+    <label v-show="postType === POST_DATA_TYPE_EVENT_ID" for="map">{{
+      TEXTS.mapPick
+    }}</label>
+    <div v-show="postType === POST_DATA_TYPE_EVENT_ID" class="map" id="map">
       <MapBox
         :id="`mapbox-${postType}-${mode}`"
         :start-coordinates="selectedCoords"

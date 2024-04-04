@@ -6,6 +6,7 @@ import homeUrl from '@/components/NavMenu/icons/home.svg';
 import routesUrl from '@/components/NavMenu/icons/routes.svg';
 import clubUrl from '@/components/NavMenu/icons/club.svg';
 import RouteButton from '@/components/NavMenu/RouteButton.vue';
+import ROUTER_PATHS from '@/router/routerConfig';
 
 const { vertical } = defineProps<{ vertical: boolean }>();
 const route = useRoute();
@@ -14,35 +15,41 @@ const MENU_BUTTONS = [
   {
     label: 'Home',
     imageUrl: homeUrl,
-    route: '/',
+    route: ROUTER_PATHS.home,
   },
   {
     label: 'Events',
     imageUrl: eventsUrl,
-    route: '/events/all',
+    route: ROUTER_PATHS.eventsAll,
   },
   {
     label: 'Clubs',
     imageUrl: clubUrl,
-    route: '/clubs',
+    route: ROUTER_PATHS.clubs,
   },
   {
     label: 'Routes',
     imageUrl: routesUrl,
-    route: '/routes/all',
+    route: ROUTER_PATHS.routesAll,
   },
   {
     label: 'Profile',
     imageUrl: profileUrl,
-    route: '/profile',
+    route: ROUTER_PATHS.profile,
   },
 ];
 
 const handleRouting = (buttonRoute: string) => {
-  if (buttonRoute.startsWith('/events') && route.path.startsWith('/events')) {
+  if (
+    buttonRoute.startsWith(ROUTER_PATHS.events) &&
+    route.path.startsWith(ROUTER_PATHS.events)
+  ) {
     return route.path;
   }
-  if (buttonRoute.startsWith('/routes') && route.path.startsWith('/routes')) {
+  if (
+    buttonRoute.startsWith(ROUTER_PATHS.routes) &&
+    route.path.startsWith(ROUTER_PATHS.routes)
+  ) {
     return route.path;
   }
   return buttonRoute;

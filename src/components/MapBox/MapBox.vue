@@ -12,6 +12,7 @@ import shadowPng from '@/components/MapBox/icons/shadow.png';
 import { v4 as uuidv4 } from 'uuid';
 
 const TILES_FORMAT = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TEXTS = { distance: 'Distance: ', elevation: 'Elevation gain: ' };
 
 const { id, startCoordinates, gpxData, pickerMode } = defineProps<{
   id: string;
@@ -109,8 +110,8 @@ onUnmounted(() => {
   <div>
     <div :id="mapId" class="map-container"></div>
     <div class="stats">
-      <div v-show="gpxData">{{ `Distance: ${distance}km` }}</div>
-      <div v-show="gpxData">{{ `Elevation gain: ${elevation}m` }}</div>
+      <div v-show="gpxData">{{ `${TEXTS.distance}${distance}km` }}</div>
+      <div v-show="gpxData">{{ `${TEXTS.elevation}${elevation}m` }}</div>
     </div>
   </div>
 </template>

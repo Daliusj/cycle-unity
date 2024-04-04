@@ -22,14 +22,29 @@ import {
   fetchDocument,
   setUserContent,
   setGpx,
+  filterNullPosts,
+  filterHiddenPosts,
+  filterPrivatePosts,
+  filterSavedPosts,
+  filterCreatedPosts,
 } from './fireStoreHelpers';
-
-const EVENTS_COLLECTION_ID = 'events';
-const ROUTES_COLLECTION_ID = 'routes';
-const USERS_COLLECTION_ID = 'users';
-const GPX_COLLECTION_ID = 'gpx';
-const USERS_CONTENT_COLLECTION_ID = 'usersContent';
-const COMMENTS_COLLECTION_ID = 'comments';
+import {
+  EVENTS_COLLECTION_ID,
+  ROUTES_COLLECTION_ID,
+  USERS_COLLECTION_ID,
+  GPX_COLLECTION_ID,
+  USERS_CONTENT_COLLECTION_ID,
+  COMMENTS_COLLECTION_ID,
+  ROUTE_ID,
+  EVENT_ID,
+  POST_FILTER_ALL_ID,
+  POST_FILTER_GOING_ID,
+  POST_FILTER_HOSTED_ID,
+  POST_FILTER_FAVORITES,
+  POST_FILTER_CREATED,
+  POST_DATA_TYPE_EVENT_ID,
+  POST_DATA_TYPE_ROUTE_ID,
+} from './fireStoreConfig';
 
 const useFireStore = defineStore('fireStore', {
   state: (): FireStoreState => ({
@@ -61,19 +76,20 @@ const useFireStore = defineStore('fireStore', {
         }
       }
     },
+
     async fetchEvents() {
       const useUser = useUserStore();
-      const events = (await fetchCollection(
-        EVENTS_COLLECTION_ID,
-      )) as FireStoreEvent[];
-      const users = (await fetchCollection(
-        USERS_COLLECTION_ID,
-      )) as FireStoreUser[];
-      const gpxTracks = (await fetchCollection(
-        GPX_COLLECTION_ID,
-      )) as FireStoreGpx[];
-      this.events = events
-        .map(event => {
+      try {
+        const events = (await fetchCollection(
+          EVENTS_COLLECTION_ID,
+        )) as FireStoreEvent[];
+        const users = (await fetchCollection(
+          USERS_COLLECTION_ID,
+        )) as FireStoreUser[];
+        const gpxTracks = (await fetchCollection(
+          GPX_COLLECTION_ID,
+        )) as FireStoreGpx[];
+        const eventsData = events.map(event => {
           const authorData = users.find(user => user.id === event.authorId);
           const gpxData = event.gpxId
             ? gpxTracks.find(track => track.id === event.gpxId)?.data
@@ -84,7 +100,7 @@ const useFireStore = defineStore('fireStore', {
           if (authorData)
             return {
               id: event.id,
-              type: 'Event',
+              type: EVENT_ID,
               authorId: event.authorId,
               author: `${authorData.name} ${authorData.lastName}`,
               authorAvatar: authorData.avatar,
@@ -99,21 +115,23 @@ const useFireStore = defineStore('fireStore', {
               gpxFileName: gpxFileName || null,
             } as Post;
           return null;
-        })
-        .filter((post): post is Post => post !== null)
-        .filter(
-          (post): post is Post =>
-            !this.userHiddenPosts.some(
-              (hiddenPostId: string) => hiddenPostId === post.id,
-            ),
-        )
-        .filter(
-          post =>
-            post.visibility === 'public' ||
-            (post.visibility === 'private' && post.authorId === useUser.userId),
+        });
+        const eventsDataFilteredNull = filterNullPosts(eventsData);
+        const eventDataFilteredHidden = filterHiddenPosts(
+          eventsDataFilteredNull,
+          this.userHiddenPosts,
         );
-      this.getFilteredEvents('all');
+        if (useUser.userId)
+          this.events = filterPrivatePosts(
+            eventDataFilteredHidden,
+            useUser.userId,
+          );
+      } catch (error) {
+        console.error('Error fetching document: ', error);
+      }
+      this.getFilteredEvents(POST_FILTER_ALL_ID);
     },
+
     async fetchRoutes() {
       const useUser = useUserStore();
       try {
@@ -126,49 +144,46 @@ const useFireStore = defineStore('fireStore', {
         const gpxTracks = (await fetchCollection(
           GPX_COLLECTION_ID,
         )) as FireStoreGpx[];
-        this.routes = routes
-          .map(route => {
-            const authorData = users.find(user => user.id === route.authorId);
-            const gpxData = gpxTracks.find(
-              track => track.id === route.gpxId,
-            )?.data;
-            const gpxFileName = gpxTracks.find(
-              track => track.id === route.gpxId,
-            )?.gpxFileName;
-            if (authorData)
-              return {
-                id: route.id,
-                type: 'Route',
-                authorId: route.authorId,
-                author: `${authorData.name} ${authorData.lastName}`,
-                authorAvatar: authorData.avatar,
-                visibility: route.visibility,
-                title: route.title,
-                details: route.details,
-                gpxId: route.gpxId,
-                gpxData,
-                gpxFileName: gpxFileName || null,
-              } as Post;
-            return null;
-          })
-          .filter((post): post is Post => post !== null)
-          .filter(
-            (post): post is Post =>
-              !this.userHiddenPosts.some(
-                (hiddenPostId: string) => hiddenPostId === post.id,
-              ),
-          )
-          .filter(
-            post =>
-              post.visibility === 'public' ||
-              (post.visibility === 'private' &&
-                post.authorId === useUser.userId),
+        const routesData = routes.map(route => {
+          const authorData = users.find(user => user.id === route.authorId);
+          const gpxData = gpxTracks.find(
+            track => track.id === route.gpxId,
+          )?.data;
+          const gpxFileName = gpxTracks.find(
+            track => track.id === route.gpxId,
+          )?.gpxFileName;
+          if (authorData)
+            return {
+              id: route.id,
+              type: ROUTE_ID,
+              authorId: route.authorId,
+              author: `${authorData.name} ${authorData.lastName}`,
+              authorAvatar: authorData.avatar,
+              visibility: route.visibility,
+              title: route.title,
+              details: route.details,
+              gpxId: route.gpxId,
+              gpxData,
+              gpxFileName: gpxFileName || null,
+            } as Post;
+          return null;
+        });
+        const routesDataFilteredNull = filterNullPosts(routesData);
+        const routesDataFilteredHidden = filterHiddenPosts(
+          routesDataFilteredNull,
+          this.userHiddenPosts,
+        );
+        if (useUser.userId)
+          this.routes = filterPrivatePosts(
+            routesDataFilteredHidden,
+            useUser.userId,
           );
       } catch (error) {
         console.error('Error fetching document: ', error);
       }
-      this.getFilteredRoutes('all');
+      this.getFilteredRoutes(POST_FILTER_ALL_ID);
     },
+
     async fetchUserContent() {
       const useUser = useUserStore();
       try {
@@ -189,7 +204,7 @@ const useFireStore = defineStore('fireStore', {
       const trackGpxId = postData.gpxData ? postData.gpxId || uuidv4() : '';
       const postId = postData.id ? postData.id : uuidv4();
       try {
-        if (postData.type === 'event')
+        if (postData.type === POST_DATA_TYPE_EVENT_ID)
           await setDoc(docRef(postId, EVENTS_COLLECTION_ID), {
             authorId: postData.userId,
             date: postData.date,
@@ -200,7 +215,7 @@ const useFireStore = defineStore('fireStore', {
             title: postData.title,
             visibility: postData.visibility,
           });
-        else if (postData.type === 'route')
+        else if (postData.type === POST_DATA_TYPE_ROUTE_ID)
           await setDoc(docRef(postId, ROUTES_COLLECTION_ID), {
             authorId: postData.userId,
             details: postData.details,
@@ -223,12 +238,14 @@ const useFireStore = defineStore('fireStore', {
       await this.fetchEvents();
       await this.fetchRoutes();
     },
+
     setPostToEdit(postToEditId: string) {
       const postToEdit = [...this.events, ...this.routes].find(
         post => post.id === postToEditId,
       );
       if (postToEdit) this.postToEdit = postToEdit;
     },
+
     cleanPostToEdit() {
       this.postToEdit = postFactory();
     },
@@ -238,7 +255,7 @@ const useFireStore = defineStore('fireStore', {
         await deleteDoc(
           docRef(
             postId,
-            postType === 'Event' ? EVENTS_COLLECTION_ID : ROUTES_COLLECTION_ID,
+            postType === EVENT_ID ? EVENTS_COLLECTION_ID : ROUTES_COLLECTION_ID,
           ),
         );
         if (gpxId) {
@@ -251,54 +268,62 @@ const useFireStore = defineStore('fireStore', {
       await this.fetchEvents();
       await this.fetchRoutes();
     },
+
     async setPostToHidden(postId: string) {
       this.userHiddenPosts = [...new Set([...this.userHiddenPosts, postId])];
       await this.setUserContent();
+      await this.fetchEvents();
+      await this.fetchRoutes();
     },
+
     async setRouteToSaved(postId: string) {
       this.userSavedRoutes = [...new Set([...this.userSavedRoutes, postId])];
       await this.setUserContent();
     },
+
     async removeRouteFromSaved(postId: string) {
       this.userSavedRoutes = this.userSavedRoutes.filter(
         routeId => routeId !== postId,
       );
       await this.setUserContent();
     },
+
     async setEventToGoing(postId: string) {
       this.userEventsGoing = [...new Set([...this.userEventsGoing, postId])];
       await this.setUserContent();
     },
+
     async removeEventFromGoing(postId: string) {
       this.userEventsGoing = this.userEventsGoing.filter(
         eventId => eventId !== postId,
       );
       await this.setUserContent();
     },
+
     getFilteredEvents(option: string) {
       const useUser = useUserStore();
-      if (option === 'all') this.eventsFiltered = this.events;
-      if (option === 'going')
-        this.eventsFiltered = this.events.filter(event =>
-          this.userEventsGoing.includes(event.id),
+      if (option === POST_FILTER_ALL_ID) this.eventsFiltered = this.events;
+      if (option === POST_FILTER_GOING_ID)
+        this.eventsFiltered = filterSavedPosts(
+          this.events,
+          this.userEventsGoing,
         );
-      if (option === 'hosted')
-        this.eventsFiltered = this.events.filter(
-          event => event.authorId === useUser.userId,
-        );
+      if (option === POST_FILTER_HOSTED_ID && useUser.userId)
+        this.eventsFiltered = filterCreatedPosts(this.events, useUser.userId);
     },
+
     getFilteredRoutes(option: string) {
       const useUser = useUserStore();
-      if (option === 'all') this.routesFiltered = this.routes;
-      if (option === 'favorites')
-        this.routesFiltered = this.routes.filter(route =>
-          this.userSavedRoutes.includes(route.id),
+      if (option === POST_FILTER_ALL_ID) this.routesFiltered = this.routes;
+      if (option === POST_FILTER_FAVORITES)
+        this.routesFiltered = filterSavedPosts(
+          this.routes,
+          this.userSavedRoutes,
         );
-      if (option === 'created')
-        this.routesFiltered = this.routes.filter(
-          route => route.authorId === useUser.userId,
-        );
+      if (option === POST_FILTER_CREATED && useUser.userId)
+        this.routesFiltered = filterCreatedPosts(this.routes, useUser.userId);
     },
+
     async setUserContent(id?: string) {
       const useUser = useUserStore();
       const userId = id || useUser.userId;
@@ -314,6 +339,7 @@ const useFireStore = defineStore('fireStore', {
         console.error('Error set document: ', error);
       }
     },
+
     async setUserDetails(
       id: string,
       avatar: string,
@@ -333,6 +359,7 @@ const useFireStore = defineStore('fireStore', {
         console.error('Error set document: ', error);
       }
     },
+
     async fetchComments() {
       try {
         const commentsCollection = (await fetchCollection(
@@ -364,6 +391,7 @@ const useFireStore = defineStore('fireStore', {
         console.error('Error fetch collection: ', error);
       }
     },
+
     async setComment(
       id: string,
       userId: string,

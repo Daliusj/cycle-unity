@@ -1,6 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const TEXT = 'Nothing to show';
+</script>
 <template>
-  <div><p>Nothing to show</p></div>
+  <div>
+    <p>{{ TEXT }}</p>
+  </div>
 </template>
 <style scoped>
 div {

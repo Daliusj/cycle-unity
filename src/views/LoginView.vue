@@ -2,13 +2,15 @@
 import LoginForm from '@/components/LoginForm.vue';
 import { useDark } from '@vueuse/core';
 
+const LOGO_TEXT = 'Cycle Unity';
+
 const isDark = useDark();
 </script>
 
 <template>
   <div class="background">
     <div class="logo" :class="isDark ? 'text-dark' : 'text-light'">
-      Cycle Unity
+      {{ LOGO_TEXT }}
     </div>
     <div class="login-container">
       <LoginForm />

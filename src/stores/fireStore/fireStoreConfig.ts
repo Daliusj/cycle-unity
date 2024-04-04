@@ -1,0 +1,17 @@
+export const EVENTS_COLLECTION_ID = 'events';
+export const ROUTES_COLLECTION_ID = 'routes';
+export const USERS_COLLECTION_ID = 'users';
+export const GPX_COLLECTION_ID = 'gpx';
+export const USERS_CONTENT_COLLECTION_ID = 'usersContent';
+export const COMMENTS_COLLECTION_ID = 'comments';
+export const EVENT_ID = 'Event';
+export const ROUTE_ID = 'Route';
+export const POST_FILTER_ALL_ID = 'all';
+export const POST_FILTER_GOING_ID = 'going';
+export const POST_FILTER_HOSTED_ID = 'hosted';
+export const POST_FILTER_FAVORITES = 'favorites';
+export const POST_FILTER_CREATED = 'created';
+export const POST_DATA_TYPE_EVENT_ID = 'event';
+export const POST_DATA_TYPE_ROUTE_ID = 'route';
+export const POST_VISIBILITY_ID_PRIVATE = 'private';
+export const POST_VISIBILITY_ID_PUBLIC = 'public';

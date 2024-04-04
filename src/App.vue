@@ -6,6 +6,7 @@ import { useDark } from '@vueuse/core';
 import useFireStore from '@/stores/fireStore/fireStore';
 import useUserStore from './stores/userStore';
 import router from './router/index';
+import ROUTER_PATHS from './router/routerConfig';
 
 const useFire = useFireStore();
 const useUser = useUserStore();
@@ -28,9 +29,9 @@ watch(
       useFire.fetchUserContent();
       useFire.fetchUserDetails();
       useFire.fetchComments();
-      router.push('/');
+      router.push(ROUTER_PATHS.home);
     } else {
-      router.push('/login');
+      router.push(ROUTER_PATHS.login);
     }
   },
   { immediate: true },

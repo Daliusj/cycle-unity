@@ -10,8 +10,12 @@ import {
 
 import type { Post, PostData } from './types';
 
-const GPX_COLLECTION_ID = 'gpx';
-const USERS_CONTENT_COLLECTION_ID = 'usersContent';
+import {
+  GPX_COLLECTION_ID,
+  USERS_CONTENT_COLLECTION_ID,
+  POST_VISIBILITY_ID_PRIVATE,
+  POST_VISIBILITY_ID_PUBLIC,
+} from './fireStoreConfig';
 
 export const postFactory = (): Post => {
   return {
@@ -77,3 +81,25 @@ export const setGpx = async (
     console.error('Error setting document: ', error);
   }
 };
+
+export const filterNullPosts = (postData: (Post | null)[]) =>
+  postData.filter((post: Post | null): post is Post => post !== null);
+
+export const filterHiddenPosts = (postData: Post[], hiddenPostsIds: string[]) =>
+  postData?.filter(
+    (post: Post) =>
+      !hiddenPostsIds.some((hiddenPostId: string) => hiddenPostId === post.id),
+  );
+export const filterPrivatePosts = (postData: Post[], userId: string) =>
+  postData?.filter(
+    post =>
+      post.visibility === POST_VISIBILITY_ID_PUBLIC ||
+      (post.visibility === POST_VISIBILITY_ID_PRIVATE &&
+        post.authorId === userId),
+  );
+
+export const filterSavedPosts = (postData: Post[], postsIdsArr: string[]) =>
+  postData.filter(post => postsIdsArr.includes(post.id));
+
+export const filterCreatedPosts = (postData: Post[], userId: string) =>
+  postData.filter(post => post.authorId === userId);

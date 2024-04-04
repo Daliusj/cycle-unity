@@ -5,6 +5,13 @@ import { auth } from '@/firebase';
 import { useRouter } from 'vue-router';
 import UserForm from '@/components/UserForm.vue';
 import ContentButton from '@/components/ContentButton.vue';
+import ROUTER_PATHS from '@/router/routerConfig';
+
+const TEXTS = {
+  dark: 'Dark',
+  light: 'Light',
+  signout: 'Sign Out',
+};
 
 const router = useRouter();
 const isDark = useDark();
@@ -12,7 +19,7 @@ const toggleDark = useToggle(isDark);
 const handleSignOut = () => {
   signOut(auth)
     .then(() => {
-      router.push('/login');
+      router.push(ROUTER_PATHS.login);
     })
     .catch(error => {
       console.log(error);
@@ -24,14 +31,14 @@ const handleSignOut = () => {
   <div class="profile">
     <div class="profile-header">
       <ContentButton
-        :label="isDark ? 'Dark' : 'Light'"
+        :label="isDark ? TEXTS.dark : TEXTS.light"
         :buttonId="`profile-dark-mode-button`"
         class="btn"
         :class="isDark ? 'btn-dark' : 'btn-light'"
         @click="toggleDark()"
       />
       <ContentButton
-        :label="'Sign Out'"
+        :label="TEXTS.signout"
         :buttonId="`profile-signout-button`"
         class="btn"
         :class="isDark ? 'btn-dark' : 'btn-light'"

@@ -4,7 +4,18 @@ import { useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import useUserStore from '@/stores/userStore';
 import useFireStore from '@/stores/fireStore/fireStore';
+import ROUTER_PATHS from '@/router/routerConfig';
 import ContentButton from './ContentButton.vue';
+
+const TEXTS = {
+  name: 'Name',
+  namePlaceholder: 'John',
+  lastName: 'Last Name',
+  lastNamePlaceholder: 'Rider',
+  invalidName: 'Invalid Name',
+  invalidLastName: 'Invalid Last Name',
+  submit: 'Submit',
+};
 
 const isDark = useDark();
 const router = useRouter();
@@ -14,7 +25,7 @@ const name = ref('');
 const isNameValid = ref<boolean>();
 const lastName = ref('');
 const isLastNameValid = ref<boolean>();
-const avatar = ref('avatarOne');
+const avatar = ref('');
 
 onMounted(() => {
   name.value = useFire.userDetails.name;
@@ -41,7 +52,7 @@ const handleSubmit = async () => {
     useFire.fetchRoutes();
     useFire.fetchUserContent();
     useFire.fetchUserDetails();
-    router.push('/');
+    router.push(ROUTER_PATHS.home);
   }
 };
 </script>
@@ -49,31 +60,33 @@ const handleSubmit = async () => {
 <template>
   <form @submit.prevent="handleSubmit" class="login-form">
     <div class="container">
-      <label for="name">Name</label>
+      <label for="name">{{ TEXTS.name }}</label>
       <input
         id="name"
         type="text"
         v-model="name"
-        placeholder="Name"
+        :placeholder="TEXTS.namePlaceholder"
         :class="{ invert: isDark }"
       />
     </div>
-    <div v-show="!isNameValid" class="alert">Invalid Name</div>
+    <div v-show="!isNameValid" class="alert">{{ TEXTS.invalidName }}</div>
 
     <div class="container">
-      <label for="lastName">Last Name</label>
+      <label for="lastName">{{ TEXTS.lastName }}</label>
       <input
         id="lastName"
         type="text"
         v-model="lastName"
-        placeholder="Rider"
+        :placeholder="TEXTS.lastNamePlaceholder"
         :class="{ invert: isDark }"
       />
     </div>
-    <div v-show="!isLastNameValid" class="alert">Invalid Last Name</div>
+    <div v-show="!isLastNameValid" class="alert">
+      {{ TEXTS.invalidLastName }}
+    </div>
 
     <ContentButton
-      :label="'Submit'"
+      :label="TEXTS.submit"
       :buttonId="`profile-form-submit-button`"
       class="btn extra-margin"
       :class="isDark ? 'btn-dark' : 'btn-light'"

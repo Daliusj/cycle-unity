@@ -5,7 +5,33 @@ import { useDark } from '@vueuse/core';
 import { auth } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import useFireStore from '@/stores/fireStore/fireStore';
+import ROUTER_PATHS from '@/router/routerConfig';
 import ContentButton from './ContentButton.vue';
+
+const TEXTS = {
+  invalidEmail: 'Invalid Email',
+  weekPassword: 'Week password',
+  noMatch: 'Passwords do not match',
+  defaultName: 'Cyclist',
+  defaultSurname: 'Wheel',
+  email: 'Email',
+  emailPlaceholder: 'email@mail.com',
+  password: 'Password',
+  passwordPlaceholder: 'YourPassword',
+  confirmPassword: 'Confirm Password',
+
+  signin: 'Sign in',
+  haveAccount: 'Have an account?',
+  signup: 'Sign up',
+};
+const AVATARS = [
+  'cyclistOne',
+  'cyclistTwo',
+  'cyclistThree',
+  'cyclistFour',
+  'cyclistFive',
+];
+const EMAIL_REGEX_PATTERN = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 
 const router = useRouter();
 const isDark = useDark();
@@ -15,16 +41,8 @@ const password = ref('');
 const confirmPassword = ref('');
 const signupError = ref('');
 
-const AVATARS = [
-  'cyclistOne',
-  'cyclistTwo',
-  'cyclistThree',
-  'cyclistFour',
-  'cyclistFive',
-];
-
 const isValidEmail = computed(() => {
-  return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email.value);
+  return EMAIL_REGEX_PATTERN.test(email.value);
 });
 const isValidPassword = computed(() => {
   return password.value.length >= 6;
@@ -35,15 +53,15 @@ const doPasswordsMatch = computed(() => {
 
 const isInputsValid = () => {
   if (!isValidEmail.value) {
-    signupError.value = 'Invalid Email';
+    signupError.value = TEXTS.invalidEmail;
     return false;
   }
   if (!isValidPassword.value) {
-    signupError.value = 'Week password';
+    signupError.value = TEXTS.weekPassword;
     return false;
   }
   if (!doPasswordsMatch.value) {
-    signupError.value = 'Passwords do not match';
+    signupError.value = TEXTS.noMatch;
     return false;
   }
   return true;
@@ -54,12 +72,12 @@ const handleSubmit = () => {
   createUserWithEmailAndPassword(auth, email.value, password.value)
     .then(userCredential => {
       const { user } = userCredential;
-      const name = `Cyclist${Math.floor(1000 + Math.random() * 9000)}`;
-      const lastName = `Wheel${Math.floor(1000 + Math.random() * 9000)}`;
+      const name = `${TEXTS.defaultName}${Math.floor(1000 + Math.random() * 9000)}`;
+      const lastName = `${TEXTS.defaultSurname}`;
       const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
       useFire.setUserContent(user.uid);
       useFire.setUserDetails(user.uid, avatar, name, lastName);
-      router.push('/profile');
+      router.push(ROUTER_PATHS.profile);
     })
     .catch(error => {
       const [, code] = error.code.split('/');
@@ -71,34 +89,34 @@ const handleSubmit = () => {
 <template>
   <form @submit.prevent="handleSubmit" class="login-form">
     <div class="container">
-      <label for="email">Email</label>
+      <label for="email">{{ TEXTS.email }}</label>
       <input
         id="email"
         type="email"
         v-model="email"
-        placeholder="Your email"
+        :placeholder="TEXTS.emailPlaceholder"
         :class="{ invert: isDark }"
       />
     </div>
 
     <div class="container">
-      <label for="password">Password</label>
+      <label for="password">{{ TEXTS.password }}</label>
       <input
         id="password"
         type="password"
         v-model="password"
-        placeholder="Create a password"
+        :placeholder="TEXTS.passwordPlaceholder"
         :class="{ invert: isDark }"
       />
     </div>
 
     <div class="container">
-      <label for="confirmPassword">Confirm Password</label>
+      <label for="confirmPassword">{{ TEXTS.confirmPassword }}</label>
       <input
         id="confirmPassword"
         type="password"
         v-model="confirmPassword"
-        placeholder="Confirm your password"
+        :placeholder="TEXTS.passwordPlaceholder"
         :class="{ invert: isDark }"
       />
     </div>
@@ -106,17 +124,17 @@ const handleSubmit = () => {
     <div class="alert" v-if="signupError">{{ signupError }}</div>
 
     <ContentButton
-      :label="'Sign up'"
+      :label="TEXTS.signup"
       :buttonId="`signup-form-submit-button`"
       class="btn extra-margin"
       :class="isDark ? 'btn-dark' : 'btn-light'"
       @click="handleSubmit"
     />
     <div class="container">
-      Have an account?
+      {{ TEXTS.haveAccount }}
       <RouterLink to="/login" class="link">
         <ContentButton
-          :label="'Log in'"
+          :label="TEXTS.signin"
           :buttonId="`signup-form-link-button`"
           class="btn"
           :class="isDark ? 'btn-dark' : 'btn-light'"

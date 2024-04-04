@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import ContentMenu from '@/components/ContentMenu/ContentMenu.vue';
 import { useRouter } from 'vue-router';
+import ROUTER_PATHS from '@/router/routerConfig';
 
 const BUTTON_LABEL = 'New Event';
 const RADIO_OPTIONS = [
-  { label: 'All', value: '/events/all' },
-  { label: 'Hosted', value: '/events/hosted' },
-  { label: 'Going', value: '/events/going' },
+  { label: 'All', value: ROUTER_PATHS.eventsAll },
+  { label: 'Hosted', value: ROUTER_PATHS.eventsHosted },
+  { label: 'Going', value: ROUTER_PATHS.eventsGoing },
 ];
 
 const router = useRouter();
 
 const handleAddClick = (): void => {
-  router.push('/new-event');
+  router.push(ROUTER_PATHS.newEvent);
 };
 </script>
 <template>
