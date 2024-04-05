@@ -45,6 +45,7 @@ const handleSubmit = async () => {
         v-model="email"
         :placeholder="TEXTS.emailPlaceholder"
         :class="{ invert: isDark }"
+        @keyup.enter="handleSubmit"
       />
     </div>
 
@@ -56,6 +57,7 @@ const handleSubmit = async () => {
         v-model="password"
         :placeholder="TEXTS.passwordPlaceholder"
         :class="{ invert: isDark }"
+        @keyup.enter="handleSubmit"
       />
     </div>
 

@@ -1,4 +1,3 @@
-/* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-black: black;
   --vt-c-white: white;
@@ -7,8 +6,6 @@
   --vt-c-dark-red: #9d0208;
   --vt-c-yellow: #fca311;
   --vt-c-orange: #bb3e03;
-
-  /* semantic color variables for this project */
   --color-background: var(--vt-c-black);
   --color-text-dark: var(--vt-c-white);
   --color-text-light: var(--vt-c-black);
@@ -17,6 +14,7 @@
   --header-height: 1rem;
   --footer-height: 10vh;
   --color-placeholder: var(--vt-c-grey);
+  --max-content-width: 630px;
 }
 
 *,

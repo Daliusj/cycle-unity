@@ -9,6 +9,7 @@ export const ALERT_MESSAGES = {
   tooLongTitle: `Maximum Title length is ${MAX_TITLE_LENGTH} characters`,
   uploadGpx: 'Upload GPX file',
   selectDate: 'Select the date',
+  invalidDate: 'Selected Date is in the past',
   selectLocation: 'Tap on the map to select the event location',
 };
 export const TEXTS = {

@@ -8,7 +8,10 @@ import clubUrl from '@/components/NavMenu/icons/club.svg';
 import RouteButton from '@/components/NavMenu/RouteButton.vue';
 import ROUTER_PATHS from '@/router/routerConfig';
 
-const { vertical } = defineProps<{ vertical: boolean }>();
+const { vertical, showLabels } = defineProps<{
+  vertical: boolean;
+  showLabels: boolean;
+}>();
 const route = useRoute();
 
 const MENU_BUTTONS = [
@@ -64,7 +67,7 @@ const handleRouting = (buttonRoute: string) => {
       :imageUrl="button.imageUrl"
       :label="button.label"
       :route="handleRouting(button.route)"
-      :showTitle="vertical"
+      :showTitle="showLabels"
     />
   </div>
 </template>
@@ -84,7 +87,7 @@ const handleRouting = (buttonRoute: string) => {
 .side {
   width: 150px;
   flex-direction: column;
-  justify-content: space-around;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 20px;
 }
 </style>

@@ -7,9 +7,8 @@ import {
   setDoc,
   getDoc,
 } from 'firebase/firestore';
-
+import useErrorStore from '../errorStore';
 import type { Post, PostData } from './types';
-
 import {
   GPX_COLLECTION_ID,
   USERS_CONTENT_COLLECTION_ID,
@@ -50,7 +49,6 @@ export const fetchDocument = async (id: string, postType: string) => {
   if (docSnap.exists()) {
     return docSnap.data();
   }
-  console.log('No such document!');
   return null;
 };
 
@@ -78,7 +76,8 @@ export const setGpx = async (
       gpxFileName,
     });
   } catch (error) {
-    console.error('Error setting document: ', error);
+    const useError = useErrorStore();
+    useError.setError(`Error setting document: ${error}`);
   }
 };
 

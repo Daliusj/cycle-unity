@@ -13,6 +13,7 @@ import {
   POST_VISIBILITY_ID_PRIVATE,
 } from '@/stores/fireStore/fireStoreConfig';
 import ROUTER_PATHS from '@/router/routerConfig';
+import useErrorStore from '@/stores/errorStore';
 import ContentButton from '../ContentButton.vue';
 import closeSvg from './icons/close.svg';
 import MapBox from '../MapBox/MapBox.vue';
@@ -27,6 +28,7 @@ import {
 } from './config';
 import useUserStore from '../../stores/userStore';
 
+const useError = useErrorStore();
 const useUser = useUserStore();
 const useFire = useFireStore();
 const isDark = useDark();
@@ -44,6 +46,7 @@ const { mode, postType } = defineProps<{
 }>();
 const isFileUploaded = ref<boolean>(postType === POST_DATA_TYPE_EVENT_ID);
 const isDateSelected = ref<boolean>(postType === POST_DATA_TYPE_ROUTE_ID);
+const isDateValid = ref<boolean>(postType === POST_DATA_TYPE_ROUTE_ID);
 const isLocationPicked = ref<boolean>(postType === POST_DATA_TYPE_ROUTE_ID);
 const isTitleValid = ref(false);
 const titleAlertMessage = ref(ALERT_MESSAGES.noTitle);
@@ -56,6 +59,12 @@ watch(selectedGpxData, () => {
 watch(selectedDate, () => {
   if (postType === POST_DATA_TYPE_EVENT_ID)
     isDateSelected.value = !!selectedDate.value;
+});
+
+watch(selectedDate, newValue => {
+  if (postType === POST_DATA_TYPE_EVENT_ID)
+    isDateValid.value =
+      moment().diff(moment(newValue, 'YYYY-MM-DD'), 'days') <= 0;
 });
 
 watch(selectedCoords, () => {
@@ -135,7 +144,7 @@ const handleGpxUpload = (event: Event): void => {
     selectedGpxData.value = e.target?.result as string;
   };
   reader.onerror = () => {
-    console.error('Error reading the GPX file.');
+    useError.setError('Error reading the GPX file.');
   };
   reader.readAsText(file);
 };
@@ -144,6 +153,7 @@ const handleSubmit = async () => {
   if (
     isTitleValid.value &&
     isDateSelected.value &&
+    isDateValid.value &&
     isFileUploaded.value &&
     isLocationPicked.value &&
     useUser.userId
@@ -222,7 +232,13 @@ const handleSubmit = async () => {
       :class="{ invert: isDark }"
     />
     <div class="alert">
-      {{ !isDateSelected ? ALERT_MESSAGES.selectDate : '' }}
+      {{
+        !isDateSelected
+          ? ALERT_MESSAGES.selectDate
+          : !isDateValid
+            ? ALERT_MESSAGES.invalidDate
+            : ''
+      }}
     </div>
 
     <label for="visibility-radio">{{ TEXTS.visibilityPick }}</label>

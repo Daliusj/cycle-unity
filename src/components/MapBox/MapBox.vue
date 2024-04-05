@@ -10,10 +10,15 @@ import startPng from '@/components/MapBox/icons/start.png';
 import finishPng from '@/components/MapBox/icons/finish.png';
 import shadowPng from '@/components/MapBox/icons/shadow.png';
 import { v4 as uuidv4 } from 'uuid';
+import useWindowStore from '@/stores/useWindow';
+import useErrorStore from '@/stores/errorStore';
 
 const TILES_FORMAT = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TEXTS = { distance: 'Distance: ', elevation: 'Elevation gain: ' };
+const MIN_WIDTH_FOR_DESKTOP_DRAGGING = 1000;
 
+const useError = useErrorStore();
+const useWindow = useWindowStore();
 const { id, startCoordinates, gpxData, pickerMode } = defineProps<{
   id: string;
   startCoordinates?: LatLngExpression;
@@ -27,15 +32,14 @@ const emit = defineEmits({
 
 const distance = ref<number>(0);
 const elevation = ref<number>(0);
-
 const mapId = `map-${id}-${uuidv4()}`;
 const myMap = ref<Map | null>(null);
 const markers = ref<L.Marker[]>([]);
 const gpxLayers = ref<L.Layer[]>([]);
 const options: MapOptions = {
   zoom: 12,
-  touchZoom: true,
-  dragging: false,
+  touchZoom: useWindow.windowWidth < MIN_WIDTH_FOR_DESKTOP_DRAGGING,
+  dragging: useWindow.windowWidth >= MIN_WIDTH_FOR_DESKTOP_DRAGGING,
 };
 
 if (startCoordinates) {
@@ -83,7 +87,7 @@ onMounted(() => {
         }
       }
     } catch (error) {
-      console.error('Map loading error: ', error);
+      useError.setError(`Map loading error: ${error}`);
     }
   }
 });

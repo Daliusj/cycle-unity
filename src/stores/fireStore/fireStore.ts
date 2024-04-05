@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { setDoc, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import useUserStore from '../userStore';
+import useErrorStore from '../errorStore';
 import type {
   Post,
   PostCommentsData,
@@ -72,7 +73,8 @@ const useFireStore = defineStore('fireStore', {
           this.userDetails.lastName = user.lastName;
           this.userDetails.avatar = user.avatar;
         } catch (error) {
-          console.error('Error fetching document: ', error);
+          const useError = useErrorStore();
+          useError.setError(`Error fetching document: ${error}`);
         }
       }
     },
@@ -127,7 +129,8 @@ const useFireStore = defineStore('fireStore', {
             useUser.userId,
           );
       } catch (error) {
-        console.error('Error fetching document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error fetching document: ${error}`);
       }
       this.getFilteredEvents(POST_FILTER_ALL_ID);
     },
@@ -179,7 +182,8 @@ const useFireStore = defineStore('fireStore', {
             useUser.userId,
           );
       } catch (error) {
-        console.error('Error fetching document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error fetching document: ${error}`);
       }
       this.getFilteredRoutes(POST_FILTER_ALL_ID);
     },
@@ -197,7 +201,8 @@ const useFireStore = defineStore('fireStore', {
           this.userEventsGoing = fetchedUserContent.eventsGoing;
         }
       } catch (error) {
-        console.error('Error fetching document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error fetching document: ${error}`);
       }
     },
     async setPost(postData: PostData) {
@@ -232,7 +237,8 @@ const useFireStore = defineStore('fireStore', {
           });
         }
       } catch (error) {
-        console.error('Error setting document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error setting document: ${error}`);
       }
       this.cleanPostToEdit();
       await this.fetchEvents();
@@ -263,7 +269,8 @@ const useFireStore = defineStore('fireStore', {
         }
         await deleteDoc(docRef(postId, COMMENTS_COLLECTION_ID));
       } catch (error) {
-        console.error('Error delete document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error deleting document: ${error}`);
       }
       await this.fetchEvents();
       await this.fetchRoutes();
@@ -336,7 +343,8 @@ const useFireStore = defineStore('fireStore', {
             this.userEventsGoing,
           );
       } catch (error) {
-        console.error('Error set document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error setting document: ${error}`);
       }
     },
 
@@ -356,7 +364,8 @@ const useFireStore = defineStore('fireStore', {
           lastName,
         });
       } catch (error) {
-        console.error('Error set document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error setting document: ${error}`);
       }
     },
 
@@ -388,7 +397,8 @@ const useFireStore = defineStore('fireStore', {
           })
           .filter(comment => comment !== null);
       } catch (error) {
-        console.error('Error fetch collection: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error fetching collection: ${error}`);
       }
     },
 
@@ -409,7 +419,8 @@ const useFireStore = defineStore('fireStore', {
           }),
         });
       } catch (error) {
-        console.error('Error set document: ', error);
+        const useError = useErrorStore();
+        useError.setError(`Error setting document: ${error}`);
       }
       await this.fetchComments();
     },

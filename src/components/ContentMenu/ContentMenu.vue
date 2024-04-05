@@ -52,7 +52,7 @@ const emit = defineEmits({
   padding: var(--main-padding);
 }
 .filter {
-  width: 50vw;
+  width: 200px;
   display: flex;
   justify-content: space-around;
 }

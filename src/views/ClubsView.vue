@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core';
+import useWindowStore from '@/stores/useWindow';
 
+const MIN_WIDTH_FOR_SIDE_BAR = 680;
 const MESSAGE_TEXT = 'Clubs coming soon!';
-
+const useWindow = useWindowStore();
 const isDark = useDark();
 </script>
 <template>
-  <div class="background">
-    <div class="logo" :class="isDark ? 'text-dark' : 'text-light'">
+  <div
+    class="background"
+    :class="{
+      'background-desktop': useWindow.windowWidth > MIN_WIDTH_FOR_SIDE_BAR,
+    }"
+  >
+    <div class="logo" :class="[isDark ? 'text-dark' : 'text-light']">
       {{ MESSAGE_TEXT }}
     </div>
   </div>
@@ -28,6 +35,11 @@ const isDark = useDark();
   justify-content: center;
   align-items: center;
 }
+
+.background-desktop {
+  height: 100%;
+}
+
 .text-dark {
   color: var(--vt-c-orange);
 }
@@ -45,6 +57,7 @@ const isDark = useDark();
   width: 100%;
   display: flex;
   justify-content: center;
+  height: 132px;
   padding: 2rem 0 2rem 0;
 }
 </style>
