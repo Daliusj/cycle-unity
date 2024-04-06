@@ -57,7 +57,10 @@ watch(
   <main
     :class="[
       { 'main-login': !useUser.userId },
-      { 'body-margin': useWindow.windowWidth > MIN_WIDTH_FOR_SIDE_BAR },
+      {
+        'body-margin':
+          useUser.userId && useWindow.windowWidth > MIN_WIDTH_FOR_SIDE_BAR,
+      },
       { 'main-desktop': useWindow.windowWidth > MIN_WIDTH_FOR_SIDE_BAR },
       { 'main-error': useError.error },
     ]"
@@ -65,7 +68,7 @@ watch(
     <RouterView />
   </main>
   <SideBar
-    v-if="useWindow.windowWidth > MIN_WIDTH_FOR_SIDE_BAR"
+    v-if="useUser.userId && useWindow.windowWidth > MIN_WIDTH_FOR_SIDE_BAR"
     :show-labels="useWindow.windowWidth > WIDTH_FOR_FULL_SIDE_BAR"
     :full-width="useWindow.windowWidth > WIDTH_FOR_FULL_SIDE_BAR"
   />

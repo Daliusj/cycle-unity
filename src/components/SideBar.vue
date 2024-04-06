@@ -27,7 +27,7 @@ const { showLabels, fullWidth } = defineProps<{
       :vertical="true"
       :show-labels="showLabels"
       class="nav-menu"
-      :class="fullWidth ? 'margin-right' : 'no-margin'"
+      :class="[fullWidth ? 'nav-menu' : 'nav-menu-narrow']"
     />
   </div>
 </template>
@@ -51,13 +51,12 @@ const { showLabels, fullWidth } = defineProps<{
 }
 .nav-menu {
   max-width: 120px;
+  margin-right: 40px;
 }
 
-.no-margin {
-  margin-right: 0;
-}
-.margin-right {
-  margin-right: 40px;
+.nav-menu-narrow {
+  max-width: 32px;
+  margin-left: 44px;
 }
 
 .logo {

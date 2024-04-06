@@ -132,7 +132,6 @@ const useFireStore = defineStore('fireStore', {
         const useError = useErrorStore();
         useError.setError(`Error fetching document: ${error}`);
       }
-      this.getFilteredEvents(POST_FILTER_ALL_ID);
     },
 
     async fetchRoutes() {
@@ -185,7 +184,6 @@ const useFireStore = defineStore('fireStore', {
         const useError = useErrorStore();
         useError.setError(`Error fetching document: ${error}`);
       }
-      this.getFilteredRoutes(POST_FILTER_ALL_ID);
     },
 
     async fetchUserContent() {
@@ -256,7 +254,12 @@ const useFireStore = defineStore('fireStore', {
       this.postToEdit = postFactory();
     },
 
-    async deletePost(postId: string, postType: string, gpxId: string | null) {
+    async deletePost(
+      postId: string,
+      postType: string,
+      gpxId: string | null,
+      filterOption: string,
+    ) {
       try {
         await deleteDoc(
           docRef(
@@ -274,13 +277,17 @@ const useFireStore = defineStore('fireStore', {
       }
       await this.fetchEvents();
       await this.fetchRoutes();
+      this.getFilteredEvents(filterOption);
+      this.getFilteredRoutes(filterOption);
     },
 
-    async setPostToHidden(postId: string) {
+    async setPostToHidden(postId: string, filterOption: string) {
       this.userHiddenPosts = [...new Set([...this.userHiddenPosts, postId])];
       await this.setUserContent();
       await this.fetchEvents();
       await this.fetchRoutes();
+      this.getFilteredEvents(filterOption);
+      this.getFilteredRoutes(filterOption);
     },
 
     async setRouteToSaved(postId: string) {

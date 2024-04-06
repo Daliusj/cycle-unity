@@ -2,8 +2,16 @@
 import { useDark } from '@vueuse/core';
 import { ref, computed } from 'vue';
 import ContentButton from '@/components/ContentButton.vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import useFireStore from '@/stores/fireStore/fireStore';
+import ROUTER_PATHS from '@/router/routerConfig';
+import {
+  POST_FILTER_CREATED,
+  POST_FILTER_HOSTED_ID,
+  POST_FILTER_FAVORITES,
+  POST_FILTER_GOING_ID,
+  POST_FILTER_ALL_ID,
+} from '@/stores/fireStore/fireStoreConfig';
 import moreSVG from './icons/more.svg';
 import useUserStore from '../../stores/userStore';
 
@@ -16,6 +24,7 @@ const TEXTS = {
   delete: 'Delete',
 };
 
+const route = useRoute();
 const router = useRouter();
 const useFire = useFireStore();
 const isMenuVisible = ref(false);
@@ -34,6 +43,17 @@ const toggleMenu = () => {
 const useUser = useUserStore();
 const isUserAuthor = computed(() => authorId === useUser.userId);
 
+const getFilterOption = () => {
+  if (route.path.endsWith(ROUTER_PATHS.eventsGoing))
+    return POST_FILTER_GOING_ID;
+  if (route.path.endsWith(ROUTER_PATHS.eventsHosted))
+    return POST_FILTER_HOSTED_ID;
+  if (route.path.endsWith(ROUTER_PATHS.routesCreated))
+    return POST_FILTER_CREATED;
+  if (route.path.endsWith(ROUTER_PATHS.routesFavorites))
+    return POST_FILTER_FAVORITES;
+  return POST_FILTER_ALL_ID;
+};
 const handelEditButtonClick = () => {
   toggleMenu();
   useFire.setPostToEdit(id);
@@ -41,11 +61,11 @@ const handelEditButtonClick = () => {
 };
 const handelHideButtonClick = () => {
   toggleMenu();
-  useFire.setPostToHidden(id);
+  useFire.setPostToHidden(id, getFilterOption());
 };
 const handelDeleteButtonClick = () => {
+  useFire.deletePost(id, postType, gpxId, getFilterOption());
   toggleMenu();
-  useFire.deletePost(id, postType, gpxId);
 };
 
 const downloadGpx = (gpx: string, fileName: string) => {
