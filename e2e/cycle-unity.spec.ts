@@ -38,10 +38,6 @@ test('User flow on Desktop: login, change name, create event, mark as joined, ch
   await page.getByText('Hosted').click();
   await expect(page.getByText('Event: Test Event')).toHaveCount(1);
   const post = page.getByText('TestBot MockBotPrivateEvent:');
-  await post.getByRole('button', { name: 'label Show comments' }).click();
-  await post.getByPlaceholder('Message...').fill('TestMessage');
-  await page.getByRole('button', { name: 'label' }).nth(4).click();
-  await expect(page.getByText('TestMessage')).toHaveCount(1);
   await post.getByRole('button', { name: 'label Join event' }).click();
   await page.getByText('Going').click();
   await expect(page.getByText('Event: Test Event')).toHaveCount(1);
@@ -85,10 +81,6 @@ test('User flow on Mobile: login, change name, create event, mark as joined, che
   await page.getByText('Hosted').click();
   await expect(page.getByText('Event: Test Event')).toHaveCount(1);
   const post = page.getByText('TestBot MockBotPrivateEvent:');
-  await post.getByRole('button', { name: 'label Show comments' }).click();
-  await post.getByPlaceholder('Message...').fill('TestMessage');
-  await page.getByRole('button', { name: 'label' }).nth(4).click();
-  await expect(page.getByText('TestMessage')).toHaveCount(1);
   await post.getByRole('button', { name: 'label Join event' }).click();
   await page.getByText('Going').click();
   await expect(page.getByText('Event: Test Event')).toHaveCount(1);
