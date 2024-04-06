@@ -46,17 +46,16 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
-        ## Build the source code
+      ## Build the source code
       - name: Build
         run: npm run build
       - name: Create 404 page
         run: cp ./dist/index.html ./dist/404.html
-      - name: Upload build artifact for deployment
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: github-pages-artifact
-          path: ./dist
-          if-no-files-found: error # Ensures the step fails if no files are found in the specified path
+          # Upload dist repository
+          path: './dist'
 
       ## E2E test our built application
       - name: Install Playwright Browsers
