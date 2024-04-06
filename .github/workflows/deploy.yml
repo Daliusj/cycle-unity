@@ -72,9 +72,9 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      ## Deploy
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # ## Deploy
+      # - name: Setup Pages
+      #   uses: actions/configure-pages@v4
+      # - name: Deploy to GitHub Pages
+      #   id: deployment
+      #   uses: actions/deploy-pages@v4
