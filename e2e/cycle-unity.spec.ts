@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const email = process.env.VITE_TEST_USER_EMAIL;
-const password = process.env.VITE_TEST_USER_PASSWORD;
+const email = process.env.TEST_USER_EMAIL;
+const password = process.env.TEST_USER_PASSWORD;
 const iPhoneX = devices['iPhone X'];
 
 test('User flow on Desktop: login, change name, create event, mark as joined, check for it in hosted and going, write comment, mark as declined, delete event, sign out', async ({
