@@ -49,21 +49,18 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        launchOptions: { args: ['--start-fulscreen'] },
       },
     },
     {
       name: 'firefox',
       use: {
         ...devices['Desktop Firefox'],
-        launchOptions: { args: ['--start-fulscreen'] },
       },
     },
     {
       name: 'webkit',
       use: {
         ...devices['Desktop Safari'],
-        launchOptions: { args: ['--start-fulscreen'] },
       },
     },
 
