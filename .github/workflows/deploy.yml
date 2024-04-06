@@ -52,7 +52,7 @@ jobs:
       - name: Create 404 page
         run: cp ./dist/index.html ./dist/404.html
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload dist repository
           path: './dist'
@@ -78,7 +78,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          # Ensure this step is explicitly configured to deploy the intended artifact
-          # This field might need to be adjusted based on the action's expected configuration
-          artifact_name: github-pages-artifact
