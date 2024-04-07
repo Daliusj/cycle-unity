@@ -1,6 +1,6 @@
 # Cycle Unity - A Vue 3 Project
 
-Cycle Unity is a web application built with Vue 3 Composition API, designed for cyclists who want to share and discover cycling events and routes. Utilizing Firebase for authentication, database, and storage, it provides a robust backend for managing user data, events, and routes. The app features a dark mode toggle, a responsive design for various screen sizes, and integration with Firebase Firestore and Authentication.
+Cycle Unity is a web application built with Vue 3 Composition API that showcases an innovative and engaging way to experience unity through cycling. This application is designed to bring cycling enthusiasts together in a unique virtual space. Designed for cyclists who want to share and discover cycling events and routes. Utilizing Firebase for authentication, database, and storage, it provides a robust backend for managing user data, events, and routes. The app features a dark mode toggle, a responsive design for various screen sizes, and integration with Firebase Firestore and Authentication.
 
 ## Features
 
