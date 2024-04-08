@@ -91,7 +91,9 @@ onMounted(() => {
           myMap.value.on('click', event => {
             markers.value.forEach(mark => mark.remove());
             markers.value = [];
-            marker = L.marker(event.latlng).addTo(initMap);
+            marker = L.marker(event.latlng, { icon: customIcon }).addTo(
+              initMap,
+            );
             markers.value.push(marker);
             emit('setCoords', event.latlng);
           });
