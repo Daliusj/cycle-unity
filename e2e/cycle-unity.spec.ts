@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import dotenv from 'dotenv';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -16,7 +17,8 @@ test('User flow on Desktop: login, change name, create event, mark as joined, ch
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'label Profile' }).click();
   await page.getByPlaceholder('John').fill('TestBot');
-  await page.getByPlaceholder('Rider').fill('MockBot');
+  const testId = uuidv4();
+  await page.getByPlaceholder('Rider').fill(testId);
   await page.getByRole('button', { name: 'Submit' }).click();
   await page.getByRole('link', { name: 'label Events' }).click();
   await page.getByRole('button', { name: 'label New Event' }).click();
@@ -32,11 +34,10 @@ test('User flow on Desktop: login, change name, create event, mark as joined, ch
   await page.getByRole('button', { name: 'Private' }).click();
   await page.getByRole('button', { name: 'Marker' }).click();
   await page.getByRole('button', { name: 'Submit' }).click();
-  await expect(page.getByText('Event: Test Event')).toHaveCount(1);
-  await expect(page.getByText('TestBot MockBot')).toHaveCount(1);
+  await expect(page.getByText(`TestBot ${testId}`)).toHaveCount(1);
   await page.getByText('Hosted').click();
-  await expect(page.getByText('Event: Test Event')).toHaveCount(1);
-  const post = page.getByText('TestBot MockBotPrivateEvent:');
+  await expect(page.getByText(`TestBot ${testId}`)).toHaveCount(1);
+  const post = page.getByText(`TestBot ${testId}PrivateEvent:`);
   await post.getByRole('button', { name: 'label Join event' }).click();
   await page.getByText('Going').click();
   await expect(page.getByText('Event: Test Event')).toHaveCount(1);
