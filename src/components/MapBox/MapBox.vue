@@ -8,6 +8,7 @@ import 'leaflet.fullscreen';
 import 'leaflet-gpx';
 import startPng from '@/components/MapBox/icons/start.png';
 import finishPng from '@/components/MapBox/icons/finish.png';
+import markerPng from '@/components/MapBox/icons/markerIcon.png';
 import shadowPng from '@/components/MapBox/icons/shadow.png';
 import { v4 as uuidv4 } from 'uuid';
 import useWindowStore from '@/stores/useWindow';
@@ -46,6 +47,14 @@ if (startCoordinates) {
   options.center = L.latLng(startCoordinates);
 }
 
+const customIcon = L.icon({
+  iconUrl: markerPng,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
 onMounted(() => {
   if (myMap.value === null) {
     try {
@@ -73,7 +82,9 @@ onMounted(() => {
       myMap.value = initMap;
 
       if (startCoordinates) {
-        let marker = L.marker(startCoordinates).addTo(initMap);
+        let marker = L.marker(startCoordinates, { icon: customIcon }).addTo(
+          initMap,
+        );
         markers.value.push(marker);
         myMap.value = initMap;
         if (pickerMode) {
