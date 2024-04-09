@@ -57,7 +57,7 @@ const isDark = useDark();
   width: 100%;
   display: flex;
   justify-content: center;
-  height: 132px;
+  /* height: 132px; */
   padding: 2rem 0 2rem 0;
 }
 </style>
