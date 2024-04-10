@@ -27,6 +27,7 @@ import {
   DEFAULT_GPX_FILE_NAME,
 } from './config';
 import useUserStore from '../../stores/userStore';
+import { v4 as uuidv4 } from 'uuid';
 
 const useError = useErrorStore();
 const useUser = useUserStore();
@@ -299,7 +300,7 @@ const handleSubmit = async () => {
     }}</label>
     <div v-show="postType === POST_DATA_TYPE_EVENT_ID" class="map" id="map">
       <MapBox
-        :id="`mapbox-${postType}-${mode}`"
+        :id="`mapbox-${postType}-${mode}-${uuidv4()}`"
         :start-coordinates="selectedCoords"
         :pickerMode="true"
         @set-coords="setCoords"
